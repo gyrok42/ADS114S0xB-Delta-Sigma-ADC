@@ -313,14 +313,6 @@ static int ads114s0xb_probe(struct spi_device *spi) {
 
 /* ---- SPI Remove Function ---- */
 static void ads114s0xb_remove(struct spi_device *spi) {
-  struct iio_dev *indio_dev = spi_get_drvdata(spi);
-
-  pr_info("ads114s0xb: Removing SPI driver\n");
-
-  /* Unregister the IIO device */
-  iio_device_unregister(indio_dev);
-
-  pr_info("ads114s0xb: SPI driver successfully removed\n");
 }
 
 /* ---- SPI Device ID Table ---- */
