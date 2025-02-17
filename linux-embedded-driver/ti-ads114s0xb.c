@@ -95,7 +95,7 @@ static int ads114s0xb_read_reg(struct iio_dev *indio_dev, u8 reg, u8 *data) {
     return ret;
 
   *data = priv->data[2];
-  return 0;
+  return 1;
 }
 
 static int ads114s0xb_write_cmd(struct iio_dev *indio_dev, u8 command) {
@@ -115,14 +115,6 @@ static int ads114s0xb_read_raw(struct iio_dev *indio_dev,
   mutex_lock(&ads114s0xb_priv->lock);
   switch (mask) {
   case IIO_CHAN_INFO_RAW:
-    /*
-      ret = ads114s0xb_write_reg(indio_dev, ADS114S0XB_REGADDR_INPMUX,
-                                 chan->channel);
-      if (ret) {
-        dev_err(&ads114s0xb_priv->spi->dev, "Set ADC CH failed\n");
-        goto output;
-      }*/
-
     ret = ads114s0xb_write_cmd(indio_dev, ADS114S0XB_CMD_START);
     if (ret) {
       dev_err(&ads114s0xb_priv->spi->dev, "Start conversions failed\n");
@@ -157,10 +149,14 @@ output:
 static ssize_t ads114s0xb_attr_get(struct device *dev,
                                    struct device_attribute *attr, char *buf) {
   struct iio_dev *indio_dev = dev_to_iio_dev(dev);
-
   struct iio_dev_attr *iio_attr = to_iio_dev_attr(attr);
+  int ret;
 
-  return ads114s0xb_read_reg(indio_dev, (u8)(iio_attr->address), buf);
+  pr_info("ads114s0xb: Attribute %s to be read\n", attr->attr.name);
+  ret = ads114s0xb_read_reg(indio_dev, (u8)(iio_attr->address), buf);
+  pr_info("ads114s0xb: ads114s0xb_read_reg ret = %d\n", ret);
+
+  return ret;
 }
 
 static ssize_t ads114s0xb_attr_set(struct device *dev,
