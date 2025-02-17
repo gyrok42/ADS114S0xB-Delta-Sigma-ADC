@@ -1,0 +1,13 @@
+/ {
+    spi1 {
+        status = "okay";
+
+        ads114s@0 {
+            compatible = "ti,ads114s08b"; // or "ti,ads114s06b"
+            reg = <0>; // SPI chip select line
+            spi-max-frequency = <1000000>; // Adjust as necessary
+
+            reset-gpios = <&gpio1 5 GPIO_ACTIVE_LOW>; // Example GPIO
+        };
+    };
+};
