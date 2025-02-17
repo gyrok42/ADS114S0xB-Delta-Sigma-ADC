@@ -270,12 +270,14 @@ static int ads114s0xb_probe(struct spi_device *spi) {
   if (!indio_dev)
     return -ENOMEM;
 
+
+  ads114s0xb_priv = iio_priv(indio_dev);
+  ads114s0xb_priv->spi = spi;
   ads114s0xb_priv->reset_gpio =
       devm_gpiod_get_optional(&spi->dev, "reset", GPIOD_OUT_LOW);
   if (IS_ERR(ads114s0xb_priv->reset_gpio))
     dev_info(&spi->dev, "Reset GPIO not defined\n");
 
-  ads114s0xb_priv = iio_priv(indio_dev);
   mutex_init(&ads114s0xb_priv->lock);
 
   indio_dev->info = &ads114s0xb_info;
@@ -310,7 +312,7 @@ static int ads114s0xb_probe(struct spi_device *spi) {
 }
 
 /* ---- SPI Remove Function ---- */
-static int ads114s0xb_remove(struct spi_device *spi) {
+static void ads114s0xb_remove(struct spi_device *spi) {
   struct iio_dev *indio_dev = spi_get_drvdata(spi);
 
   pr_info("ads114s0xb: Removing SPI driver\n");
@@ -319,7 +321,6 @@ static int ads114s0xb_remove(struct spi_device *spi) {
   iio_device_unregister(indio_dev);
 
   pr_info("ads114s0xb: SPI driver successfully removed\n");
-  return 0;
 }
 
 /* ---- SPI Device ID Table ---- */

@@ -1,5 +1,5 @@
 # Define both kernel modules
-obj-m := ads114s0xb.o ads114s0xb-mock.o
+obj-m := ti-ads114s0xb.o ti-ads114s0xb-mock.o
 
 # Kernel build directory
 KDIR := /lib/modules/$(shell uname -r)/build
