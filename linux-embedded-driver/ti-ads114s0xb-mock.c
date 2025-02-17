@@ -31,57 +31,66 @@
 #define ADS114S0XB_REGADDR_GPIOCON 0x11
 
 struct ads114s0xb_private {
-  u8 channels[ADS114S0XB_MAX_CHANNELS]; /* Internal register storage */
-  u8 attributes[ADS114S0XB_NUM_ATTRIBUTES];
-  struct mutex lock;
+	u8 channels[ADS114S0XB_MAX_CHANNELS]; /* Internal register storage */
+	u8 attributes[ADS114S0XB_NUM_ATTRIBUTES];
+	struct mutex lock;
 };
 
-static struct iio_dev *ads114s0xb_indio_dev;
+static struct iio_dev* ads114s0xb_indio_dev;
 
-static int ads114s0xb_read_raw(struct iio_dev *indio_dev,
-                               struct iio_chan_spec const *chan, int *val,
-                               int *val2, long mask) {
-  struct ads114s0xb_private *ads114s0xb_priv = iio_priv(indio_dev);
+static int ads114s0xb_read_raw(struct iio_dev* indio_dev,
+    struct iio_chan_spec const* chan,
+    int* val,
+    int* val2,
+    long mask)
+{
+	struct ads114s0xb_private* ads114s0xb_priv = iio_priv(indio_dev);
 
-  if (chan->address >= ADS114S0XB_MAX_CHANNELS)
-    return -EINVAL;
+	if (chan->address >= ADS114S0XB_MAX_CHANNELS)
+		return -EINVAL;
 
-  mutex_lock(&ads114s0xb_priv->lock);
-  *val = ads114s0xb_priv->channels[chan->address];
-  mutex_unlock(&ads114s0xb_priv->lock);
+	mutex_lock(&ads114s0xb_priv->lock);
+	*val = ads114s0xb_priv->channels[chan->address];
+	mutex_unlock(&ads114s0xb_priv->lock);
 
-  pr_info("ads114s0xb: Read register[%lu] = %d\n", chan->address, *val);
-  return IIO_VAL_INT;
+	pr_info("ads114s0xb: Read register[%lu] = %d\n", chan->address, *val);
+	return IIO_VAL_INT;
 }
 
-static ssize_t ads114s0xb_attr_get(struct device *dev, struct device_attribute *attr,
-                        char *buf) {
-  // struct iio_dev *indio_dev = dev_to_iio_dev(dev);
-  // struct ads114s0xb_private *ads114s0xb_priv = iio_priv(indio_dev);
-  struct iio_dev_attr *iio_attr = to_iio_dev_attr(attr);
-  return sprintf(buf, "%02X\n",
-                 (u8)(iio_attr->address)); // ads114s0xb_priv->attributes[0]);
+static ssize_t ads114s0xb_attr_get(
+    struct device* dev, struct device_attribute* attr, char* buf)
+{
+	// struct iio_dev *indio_dev = dev_to_iio_dev(dev);
+	// struct ads114s0xb_private *ads114s0xb_priv = iio_priv(indio_dev);
+	struct iio_dev_attr* iio_attr = to_iio_dev_attr(attr);
+	return sprintf(buf,
+	    "%02X\n",
+	    (u8)(iio_attr->address)); // ads114s0xb_priv->attributes[0]);
 }
 
-static ssize_t ads114s0xb_attr_set(struct device *dev, struct device_attribute *attr,
-                        const char *buf, size_t count) {
-  struct iio_dev *indio_dev = dev_to_iio_dev(dev);
-  struct ads114s0xb_private *ads114s0xb_priv = iio_priv(indio_dev);
-  int val;
+static ssize_t ads114s0xb_attr_set(struct device* dev,
+    struct device_attribute* attr,
+    const char* buf,
+    size_t count)
+{
+	struct iio_dev* indio_dev = dev_to_iio_dev(dev);
+	struct ads114s0xb_private* ads114s0xb_priv = iio_priv(indio_dev);
+	int val;
 
-  if (kstrtoint(buf, 10, &val) < 0)
-    return -EINVAL;
+	if (kstrtoint(buf, 10, &val) < 0)
+		return -EINVAL;
 
-  mutex_lock(&ads114s0xb_priv->lock);
-  ads114s0xb_priv->attributes[0] = (u8)val;
-  mutex_unlock(&ads114s0xb_priv->lock);
+	mutex_lock(&ads114s0xb_priv->lock);
+	ads114s0xb_priv->attributes[0] = (u8)val;
+	mutex_unlock(&ads114s0xb_priv->lock);
 
-  pr_info("ads114s0xb: Attribute %s set to %d\n", attr->attr.name, val);
-  return count;
+	pr_info("ads114s0xb: Attribute %s set to %d\n", attr->attr.name, val);
+	return count;
 }
 
 #define IIO_RW_ATTRIBUTE(name, addr)                                           \
-  static IIO_DEVICE_ATTR(name, 0644, ads114s0xb_attr_get, ads114s0xb_attr_set, addr);
+	static IIO_DEVICE_ATTR(                                                \
+	    name, 0644, ads114s0xb_attr_get, ads114s0xb_attr_set, addr);
 
 IIO_RW_ATTRIBUTE(ID, ADS114S0XB_REGADDR_ID);
 IIO_RW_ATTRIBUTE(STATUS, ADS114S0XB_REGADDR_STATUS);
@@ -101,7 +110,7 @@ IIO_RW_ATTRIBUTE(GPIODAT, ADS114S0XB_REGADDR_GPIODAT);
 IIO_RW_ATTRIBUTE(GPIOCON, ADS114S0XB_REGADDR_GPIOCON);
 IIO_RW_ATTRIBUTE(SENSOR_MOCK_MODE, 0xff);
 
-static struct attribute *ads114s0xb_attrs[] = {
+static struct attribute* ads114s0xb_attrs[] = {
     &iio_dev_attr_ID.dev_attr.attr,
     &iio_dev_attr_STATUS.dev_attr.attr,
     &iio_dev_attr_INPMUX.dev_attr.attr,
@@ -134,55 +143,58 @@ static const struct iio_info ads114s0xb_info = {
     .attrs = &ads114s0xb_attr_group,
 };
 
-static int __init ads114s0xb_init(void) {
-  struct ads114s0xb_private *ads114s0xb_priv;
-  int i, ret;
+static int __init ads114s0xb_init(void)
+{
+	struct ads114s0xb_private* ads114s0xb_priv;
+	int i, ret;
 
-  pr_info("ads114s0xb: Initializing standalone IIO driver\n");
+	pr_info("ads114s0xb: Initializing standalone IIO driver\n");
 
-  /* Allocate IIO device */
-  ads114s0xb_indio_dev =
-      iio_device_alloc(NULL, sizeof(struct ads114s0xb_private));
-  if (!ads114s0xb_indio_dev)
-    return -ENOMEM;
+	/* Allocate IIO device */
+	ads114s0xb_indio_dev =
+	    iio_device_alloc(NULL, sizeof(struct ads114s0xb_private));
+	if (!ads114s0xb_indio_dev)
+		return -ENOMEM;
 
-  ads114s0xb_priv = iio_priv(ads114s0xb_indio_dev);
-  mutex_init(&ads114s0xb_priv->lock);
+	ads114s0xb_priv = iio_priv(ads114s0xb_indio_dev);
+	mutex_init(&ads114s0xb_priv->lock);
 
-  ads114s0xb_indio_dev->info = &ads114s0xb_info;
-  ads114s0xb_indio_dev->name = "ads114s0xb";
-  ads114s0xb_indio_dev->modes = INDIO_DIRECT_MODE;
+	ads114s0xb_indio_dev->info = &ads114s0xb_info;
+	ads114s0xb_indio_dev->name = "ads114s0xb";
+	ads114s0xb_indio_dev->modes = INDIO_DIRECT_MODE;
 
-  /* Initialize channels */
-  for (i = 0; i < ADS114S0XB_MAX_CHANNELS; i++) {
-    ads114s0xb_channels[i].type = IIO_VOLTAGE;
-    ads114s0xb_channels[i].indexed = 1;
-    ads114s0xb_channels[i].channel = i;
-    ads114s0xb_channels[i].address = i;
-    ads114s0xb_channels[i].info_mask_separate = BIT(IIO_CHAN_INFO_RAW);
-  }
+	/* Initialize channels */
+	for (i = 0; i < ADS114S0XB_MAX_CHANNELS; i++) {
+		ads114s0xb_channels[i].type = IIO_VOLTAGE;
+		ads114s0xb_channels[i].indexed = 1;
+		ads114s0xb_channels[i].channel = i;
+		ads114s0xb_channels[i].address = i;
+		ads114s0xb_channels[i].info_mask_separate =
+		    BIT(IIO_CHAN_INFO_RAW);
+	}
 
-  ads114s0xb_indio_dev->channels = ads114s0xb_channels;
-  ads114s0xb_indio_dev->num_channels = ADS114S0XB_MAX_CHANNELS;
+	ads114s0xb_indio_dev->channels = ads114s0xb_channels;
+	ads114s0xb_indio_dev->num_channels = ADS114S0XB_MAX_CHANNELS;
 
-  /* Register IIO device */
-  ret = iio_device_register(ads114s0xb_indio_dev);
-  if (ret) {
-    pr_err("ads114s0xb: Failed to register IIO device\n");
-    iio_device_free(ads114s0xb_indio_dev);
-    return ret;
-  }
+	/* Register IIO device */
+	ret = iio_device_register(ads114s0xb_indio_dev);
+	if (ret) {
+		pr_err("ads114s0xb: Failed to register IIO device\n");
+		iio_device_free(ads114s0xb_indio_dev);
+		return ret;
+	}
 
-  pr_info("ads114s0xb: Standalone IIO driver successfully registered\n");
-  return 0;
+	pr_info("ads114s0xb: Standalone IIO driver successfully registered\n");
+	return 0;
 }
 
-static void __exit ads114s0xb_exit(void) {
-  pr_info("ads114s0xb: Removing standalone IIO driver\n");
+static void __exit ads114s0xb_exit(void)
+{
+	pr_info("ads114s0xb: Removing standalone IIO driver\n");
 
-  /* Unregister and free IIO device */
-  iio_device_unregister(ads114s0xb_indio_dev);
-  iio_device_free(ads114s0xb_indio_dev);
+	/* Unregister and free IIO device */
+	iio_device_unregister(ads114s0xb_indio_dev);
+	iio_device_free(ads114s0xb_indio_dev);
 }
 
 module_init(ads114s0xb_init);

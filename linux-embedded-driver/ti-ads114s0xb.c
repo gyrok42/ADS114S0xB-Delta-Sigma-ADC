@@ -48,159 +48,180 @@
 #define ADS114S0XB_REGADDR_GPIOCON 0x11
 
 enum ads114s0xb {
-  ADS114S06B_ID,
-  ADS114S08B_ID,
+	ADS114S06B_ID,
+	ADS114S08B_ID,
 };
 
 struct ads114s0xb_private {
-  u8 data[5] __aligned(8);
-  struct spi_device *spi;
-  struct gpio_desc *reset_gpio;
-  struct mutex lock;
+	u8 data[5] __aligned(8);
+	struct spi_device* spi;
+	struct gpio_desc* reset_gpio;
+	struct mutex lock;
 };
 
-static int ads114s0xb_write_reg(struct iio_dev *indio_dev, u8 reg, u8 data) {
-  struct ads114s0xb_private *priv = iio_priv(indio_dev);
-  priv->data[0] = ADS114S0XB_CMD_WREG | reg;
-  priv->data[1] = 0x0;  /* number of registers to write (minus 1) */
-  priv->data[2] = data; /* register data to be written */
+static int ads114s0xb_write_reg(struct iio_dev* indio_dev, u8 reg, u8 data)
+{
+	struct ads114s0xb_private* priv = iio_priv(indio_dev);
+	priv->data[0] = ADS114S0XB_CMD_WREG | reg;
+	priv->data[1] = 0x0; /* number of registers to write (minus 1) */
+	priv->data[2] = data; /* register data to be written */
 
-  return spi_write(priv->spi, &priv->data[0], 3);
+	return spi_write(priv->spi, &priv->data[0], 3);
 }
 
-static int ads114s0xb_read_data(struct iio_dev *indio_dev, int *data) {
-  struct ads114s0xb_private *priv = iio_priv(indio_dev);
-  int ret = 0;
-  priv->data[0] = ADS114S0XB_CMD_RDATA;
+static int ads114s0xb_read_data(struct iio_dev* indio_dev, int* data)
+{
+	struct ads114s0xb_private* priv = iio_priv(indio_dev);
+	int ret = 0;
+	priv->data[0] = ADS114S0XB_CMD_RDATA;
 
-  ret = spi_write_then_read(priv->spi, &priv->data[0], 2, /* send 1 byte  */
-                            &priv->data[2], 3);           /* read 3 bytes */
-  if (ret < 0)
-    return ret;
+	ret = spi_write_then_read(priv->spi,
+	    &priv->data[0],
+	    2, /* send 1 byte  */
+	    &priv->data[2],
+	    3); /* read 3 bytes */
+	if (ret < 0)
+		return ret;
 
-  *data = get_unaligned_be16(&priv->data[3]);
+	*data = get_unaligned_be16(&priv->data[3]);
 
-  return 0;
+	return 0;
 }
 
-static int ads114s0xb_read_reg(struct iio_dev *indio_dev, u8 reg, u8 *data) {
-  struct ads114s0xb_private *priv = iio_priv(indio_dev);
-  int ret = 0;
-  priv->data[0] = ADS114S0XB_CMD_RREG | reg;
-  priv->data[1] = 0x00; /* reading one register => 0x00 */
+static int ads114s0xb_read_reg(struct iio_dev* indio_dev, u8 reg, u8* data)
+{
+	struct ads114s0xb_private* priv = iio_priv(indio_dev);
+	int ret = 0;
+	priv->data[0] = ADS114S0XB_CMD_RREG | reg;
+	priv->data[1] = 0x00; /* reading one register => 0x00 */
 
-  ret = spi_write_then_read(priv->spi, &priv->data[0], 2, /* send 2 bytes */
-                            &priv->data[2], 1);           /* read 1 byte */
-  if (ret < 0)
-    return ret;
+	ret = spi_write_then_read(priv->spi,
+	    &priv->data[0],
+	    2, /* send 2 bytes */
+	    &priv->data[2],
+	    1); /* read 1 byte */
+	if (ret < 0)
+		return ret;
 
-  *data = priv->data[2];
-  return 1;
+	*data = priv->data[2];
+	return 1;
 }
 
-static int ads114s0xb_write_cmd(struct iio_dev *indio_dev, u8 command) {
-  struct ads114s0xb_private *ads114s0xb_priv = iio_priv(indio_dev);
+static int ads114s0xb_write_cmd(struct iio_dev* indio_dev, u8 command)
+{
+	struct ads114s0xb_private* ads114s0xb_priv = iio_priv(indio_dev);
 
-  ads114s0xb_priv->data[0] = command;
+	ads114s0xb_priv->data[0] = command;
 
-  return spi_write(ads114s0xb_priv->spi, &ads114s0xb_priv->data[0], 1);
+	return spi_write(ads114s0xb_priv->spi, &ads114s0xb_priv->data[0], 1);
 }
 
-static int ads114s0xb_read_raw(struct iio_dev *indio_dev,
-                               struct iio_chan_spec const *chan, int *val,
-                               int *val2, long mask) {
-  struct ads114s0xb_private *ads114s0xb_priv = iio_priv(indio_dev);
-  int ret;
+static int ads114s0xb_read_raw(struct iio_dev* indio_dev,
+    struct iio_chan_spec const* chan,
+    int* val,
+    int* val2,
+    long mask)
+{
+	struct ads114s0xb_private* ads114s0xb_priv = iio_priv(indio_dev);
+	int ret;
 
-  mutex_lock(&ads114s0xb_priv->lock);
-  switch (mask) {
-  case IIO_CHAN_INFO_RAW:
-    ret = ads114s0xb_write_cmd(indio_dev, ADS114S0XB_CMD_START);
-    if (ret) {
-      dev_err(&ads114s0xb_priv->spi->dev, "Start conversions failed\n");
-      goto output;
-    }
+	mutex_lock(&ads114s0xb_priv->lock);
+	switch (mask) {
+	case IIO_CHAN_INFO_RAW:
+		ret = ads114s0xb_write_cmd(indio_dev, ADS114S0XB_CMD_START);
+		if (ret) {
+			dev_err(&ads114s0xb_priv->spi->dev,
+			    "Start conversions failed\n");
+			goto output;
+		}
 
-    ret = ads114s0xb_read_data(indio_dev, val);
-    if (ret < 0) {
-      dev_err(&ads114s0xb_priv->spi->dev, "Read ADC failed\n");
-      goto output;
-    }
+		ret = ads114s0xb_read_data(indio_dev, val);
+		if (ret < 0) {
+			dev_err(
+			    &ads114s0xb_priv->spi->dev, "Read ADC failed\n");
+			goto output;
+		}
 
-    *val = ret;
+		*val = ret;
 
-    ret = ads114s0xb_write_cmd(indio_dev, ADS114S0XB_CMD_STOP);
-    if (ret) {
-      dev_err(&ads114s0xb_priv->spi->dev, "Stop conversions failed\n");
-      goto output;
-    }
+		ret = ads114s0xb_write_cmd(indio_dev, ADS114S0XB_CMD_STOP);
+		if (ret) {
+			dev_err(&ads114s0xb_priv->spi->dev,
+			    "Stop conversions failed\n");
+			goto output;
+		}
 
-    ret = IIO_VAL_INT;
-    break;
-  default:
-    ret = -EINVAL;
-    break;
-  }
+		ret = IIO_VAL_INT;
+		break;
+	default:
+		ret = -EINVAL;
+		break;
+	}
 output:
-  mutex_unlock(&ads114s0xb_priv->lock);
-  return ret;
+	mutex_unlock(&ads114s0xb_priv->lock);
+	return ret;
 }
 
-static ssize_t ads114s0xb_attr_get(struct device *dev,
-                                   struct device_attribute *attr, char *buf) {
-  struct iio_dev *indio_dev = dev_to_iio_dev(dev);
-  struct iio_dev_attr *iio_attr = to_iio_dev_attr(attr);
-  int ret;
+static ssize_t ads114s0xb_attr_get(
+    struct device* dev, struct device_attribute* attr, char* buf)
+{
+	struct iio_dev* indio_dev = dev_to_iio_dev(dev);
+	struct iio_dev_attr* iio_attr = to_iio_dev_attr(attr);
+	int ret;
 
-  pr_info("ads114s0xb: Attribute %s to be read\n", attr->attr.name);
-  ret = ads114s0xb_read_reg(indio_dev, (u8)(iio_attr->address), buf);
-  pr_info("ads114s0xb: ads114s0xb_read_reg ret = %d\n", ret);
+	pr_info("ads114s0xb: Attribute %s to be read\n", attr->attr.name);
+	ret = ads114s0xb_read_reg(indio_dev, (u8)(iio_attr->address), buf);
+	pr_info("ads114s0xb: ads114s0xb_read_reg ret = %d\n", ret);
 
-  return ret;
+	return ret;
 }
 
-static ssize_t ads114s0xb_attr_set(struct device *dev,
-                                   struct device_attribute *attr,
-                                   const char *buf, size_t count) {
-  struct iio_dev *indio_dev = dev_to_iio_dev(dev);
-  struct ads114s0xb_private *ads114s0xb_priv = iio_priv(indio_dev);
-  struct iio_dev_attr *iio_attr = to_iio_dev_attr(attr);
-  int val;
+static ssize_t ads114s0xb_attr_set(struct device* dev,
+    struct device_attribute* attr,
+    const char* buf,
+    size_t count)
+{
+	struct iio_dev* indio_dev = dev_to_iio_dev(dev);
+	struct ads114s0xb_private* ads114s0xb_priv = iio_priv(indio_dev);
+	struct iio_dev_attr* iio_attr = to_iio_dev_attr(attr);
+	int val;
 
-  if (kstrtoint(buf, 10, &val) < 0)
-    return -EINVAL;
+	if (kstrtoint(buf, 10, &val) < 0)
+		return -EINVAL;
 
-  mutex_lock(&ads114s0xb_priv->lock);
-  ads114s0xb_write_reg(indio_dev, (u8)(iio_attr->address), val);
-  mutex_unlock(&ads114s0xb_priv->lock);
+	mutex_lock(&ads114s0xb_priv->lock);
+	ads114s0xb_write_reg(indio_dev, (u8)(iio_attr->address), val);
+	mutex_unlock(&ads114s0xb_priv->lock);
 
-  pr_info("ads114s0xb: Attribute %s set to %d\n", attr->attr.name, val);
-  return count;
+	pr_info("ads114s0xb: Attribute %s set to %d\n", attr->attr.name, val);
+	return count;
 }
 
-static int ads114s0xb_reset(struct iio_dev *indio_dev) {
-  struct ads114s0xb_private *ads114s0xb_priv = iio_priv(indio_dev);
+static int ads114s0xb_reset(struct iio_dev* indio_dev)
+{
+	struct ads114s0xb_private* ads114s0xb_priv = iio_priv(indio_dev);
 
-  if (ads114s0xb_priv->reset_gpio) {
-    gpiod_set_value_cansleep(ads114s0xb_priv->reset_gpio, 0);
-    /*
-    Table 7.6 – Timing Characteristics (Page 10 of the manual)
-    Internal Oscillator: 4.096 MHz, 1.5% Accuracy
-    t_clk = 1 / 4096 = 244ns
-    tw(RSL) (Pulse duration, RESET low) = tw(RSL) = 4 * t_clk = ~1 µs
-    */
-    udelay(100); // Setting 100x more.
-    gpiod_set_value_cansleep(ads114s0xb_priv->reset_gpio, 1);
-  } else {
-    return ads114s0xb_write_cmd(indio_dev, ADS114S0XB_CMD_RESET);
-  }
+	if (ads114s0xb_priv->reset_gpio) {
+		gpiod_set_value_cansleep(ads114s0xb_priv->reset_gpio, 0);
+		/*
+		Table 7.6 – Timing Characteristics (Page 10 of the manual)
+		Internal Oscillator: 4.096 MHz, 1.5% Accuracy
+		t_clk = 1 / 4096 = 244ns
+		tw(RSL) (Pulse duration, RESET low) = tw(RSL) = 4 * t_clk = ~1
+		µs
+		*/
+		udelay(100); // Setting 100x more.
+		gpiod_set_value_cansleep(ads114s0xb_priv->reset_gpio, 1);
+	} else {
+		return ads114s0xb_write_cmd(indio_dev, ADS114S0XB_CMD_RESET);
+	}
 
-  return 0;
+	return 0;
 };
 
 #define IIO_RW_ATTRIBUTE(name, addr)                                           \
-  static IIO_DEVICE_ATTR(name, 0644, ads114s0xb_attr_get, ads114s0xb_attr_set, \
-                         addr);
+	static IIO_DEVICE_ATTR(                                                \
+	    name, 0644, ads114s0xb_attr_get, ads114s0xb_attr_set, addr);
 
 IIO_RW_ATTRIBUTE(ID, ADS114S0XB_REGADDR_ID);
 IIO_RW_ATTRIBUTE(STATUS, ADS114S0XB_REGADDR_STATUS);
@@ -220,7 +241,7 @@ IIO_RW_ATTRIBUTE(GPIODAT, ADS114S0XB_REGADDR_GPIODAT);
 IIO_RW_ATTRIBUTE(GPIOCON, ADS114S0XB_REGADDR_GPIOCON);
 IIO_RW_ATTRIBUTE(SENSOR_MOCK_MODE, 0xff);
 
-static struct attribute *dummy_attrs[] = {
+static struct attribute* dummy_attrs[] = {
     &iio_dev_attr_ID.dev_attr.attr,
     &iio_dev_attr_STATUS.dev_attr.attr,
     &iio_dev_attr_INPMUX.dev_attr.attr,
@@ -253,62 +274,64 @@ static const struct iio_info ads114s0xb_info = {
 };
 
 /* ---- SPI Probe Function ---- */
-static int ads114s0xb_probe(struct spi_device *spi) {
-  struct ads114s0xb_private *ads114s0xb_priv;
-  struct iio_dev *indio_dev;
-  int i, ret;
+static int ads114s0xb_probe(struct spi_device* spi)
+{
+	struct ads114s0xb_private* ads114s0xb_priv;
+	struct iio_dev* indio_dev;
+	int i, ret;
 
-  pr_info("ads114s0xb: Probing SPI driver\n");
+	pr_info("ads114s0xb: Probing SPI driver\n");
 
-  /* Allocate IIO device */
-  indio_dev =
-      devm_iio_device_alloc(&spi->dev, sizeof(struct ads114s0xb_private));
-  if (!indio_dev)
-    return -ENOMEM;
+	/* Allocate IIO device */
+	indio_dev =
+	    devm_iio_device_alloc(&spi->dev, sizeof(struct ads114s0xb_private));
+	if (!indio_dev)
+		return -ENOMEM;
 
+	ads114s0xb_priv = iio_priv(indio_dev);
+	ads114s0xb_priv->spi = spi;
+	ads114s0xb_priv->reset_gpio =
+	    devm_gpiod_get_optional(&spi->dev, "reset", GPIOD_OUT_LOW);
+	if (IS_ERR(ads114s0xb_priv->reset_gpio))
+		dev_info(&spi->dev, "Reset GPIO not defined\n");
 
-  ads114s0xb_priv = iio_priv(indio_dev);
-  ads114s0xb_priv->spi = spi;
-  ads114s0xb_priv->reset_gpio =
-      devm_gpiod_get_optional(&spi->dev, "reset", GPIOD_OUT_LOW);
-  if (IS_ERR(ads114s0xb_priv->reset_gpio))
-    dev_info(&spi->dev, "Reset GPIO not defined\n");
+	mutex_init(&ads114s0xb_priv->lock);
 
-  mutex_init(&ads114s0xb_priv->lock);
+	indio_dev->info = &ads114s0xb_info;
+	indio_dev->name = "ads114s0xb";
+	indio_dev->modes = INDIO_DIRECT_MODE;
 
-  indio_dev->info = &ads114s0xb_info;
-  indio_dev->name = "ads114s0xb";
-  indio_dev->modes = INDIO_DIRECT_MODE;
+	/* Initialize channels */
+	for (i = 0; i < ADS114S0XB_MAX_CHANNELS; i++) {
+		ads114s0xb_channels[i].type = IIO_VOLTAGE;
+		ads114s0xb_channels[i].indexed = 1;
+		ads114s0xb_channels[i].channel = i;
+		ads114s0xb_channels[i].address = i;
+		ads114s0xb_channels[i].info_mask_separate =
+		    BIT(IIO_CHAN_INFO_RAW);
+	}
 
-  /* Initialize channels */
-  for (i = 0; i < ADS114S0XB_MAX_CHANNELS; i++) {
-    ads114s0xb_channels[i].type = IIO_VOLTAGE;
-    ads114s0xb_channels[i].indexed = 1;
-    ads114s0xb_channels[i].channel = i;
-    ads114s0xb_channels[i].address = i;
-    ads114s0xb_channels[i].info_mask_separate = BIT(IIO_CHAN_INFO_RAW);
-  }
+	indio_dev->channels = ads114s0xb_channels;
+	indio_dev->num_channels = ADS114S0XB_MAX_CHANNELS;
 
-  indio_dev->channels = ads114s0xb_channels;
-  indio_dev->num_channels = ADS114S0XB_MAX_CHANNELS;
+	/* Register IIO device */
+	ret = devm_iio_device_register(&spi->dev, indio_dev);
+	if (ret) {
+		pr_err("ads114s0xb: Failed to register IIO device\n");
+		return ret;
+	}
 
-  /* Register IIO device */
-  ret = devm_iio_device_register(&spi->dev, indio_dev);
-  if (ret) {
-    pr_err("ads114s0xb: Failed to register IIO device\n");
-    return ret;
-  }
+	spi_set_drvdata(spi, indio_dev);
+	pr_info("ads114s0xb: SPI driver successfully registered\n");
 
-  spi_set_drvdata(spi, indio_dev);
-  pr_info("ads114s0xb: SPI driver successfully registered\n");
+	ads114s0xb_reset(indio_dev);
 
-  ads114s0xb_reset(indio_dev);
-
-  return 0;
+	return 0;
 }
 
 /* ---- SPI Remove Function ---- */
-static void ads114s0xb_remove(struct spi_device *spi) {
+static void ads114s0xb_remove(struct spi_device* spi)
+{
 }
 
 /* ---- SPI Device ID Table ---- */
@@ -323,10 +346,10 @@ MODULE_DEVICE_TABLE(of, ads114s0xb_of_table);
 /* ---- SPI Driver Structure ---- */
 static struct spi_driver ads114s0xb_driver = {
     .driver =
-        {
-            .name = "ads114s0xb",
-            .of_match_table = ads114s0xb_of_table,
-        },
+	{
+	    .name = "ads114s0xb",
+	    .of_match_table = ads114s0xb_of_table,
+	},
     .probe = ads114s0xb_probe,
     .remove = ads114s0xb_remove,
     .id_table = ads114s0xb_id,
