@@ -1,0 +1,18 @@
+Industrial I/O (IIO) subsystem's sysfs interface
+================================================
+jairo@raspberrypi:/sys/bus/iio/devices/iio:device0 $ ls
+DATARATE  GPIODAT  INPMUX            in_voltage1_raw  in_voltage5_raw  in_voltage9_raw  of_node  SENSOR_MOCK_MODE  uevent
+FSCAL0    ID       in_voltage0_raw   in_voltage2_raw  in_voltage6_raw  name             PGA      STATUS            VBIAS
+FSCAL1    IDACMAG  in_voltage10_raw  in_voltage3_raw  in_voltage7_raw  OFCAL0           power    subsystem         waiting_for_supplier
+GPIOCON   IDACMUX  in_voltage11_raw  in_voltage4_raw  in_voltage8_raw  OFCAL1           REF      SYS
+
+ads114s0xb is bound to spi0.0
+=============================
+jairo@raspberrypi:/sys/bus/spi/drivers/ads114s0xb $ ls
+bind  module  spi0.0  uevent  unbind
+jairo@raspberrypi:/sys/bus/spi/drivers/ads114s0xb $
+
+ads114s0xb is correctly loaded under /sys/bus/spi/drivers/
+=========================================================
+jairo@raspberrypi:/sys/bus/spi/drivers $ ls
+ads114s0xb  spidev  stmpe-spi
