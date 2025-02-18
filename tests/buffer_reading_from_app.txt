@@ -1,0 +1,51 @@
+root@raspberrypi:/home/jairo/drivers/ADS114S0xB-Delta-Sigma-ADC/linux-user-app# g++ -o usersp user-space-app.cpp -liio
+root@raspberrypi:/home/jairo/drivers/ADS114S0xB-Delta-Sigma-ADC/linux-user-app# ./usersp 
+
+# Since I don't have the sensor to take a real reading, the device driver is feeding 10 A5 as a mock test.
+
+Initializing ADS114S0XB user-space program using libiio...
+Buffer disabled.
+Buffer enabled.
+Switched to channel: 0
+Buffer enabled.
+Triggered ADC conversion.
+ADC Data: 10 a5 
+Triggered ADC conversion.
+ADC Data: 10 a5 
+Triggered ADC conversion.
+ADC Data: 10 a5 
+Triggered ADC conversion.
+ADC Data: 10 a5 
+Triggered ADC conversion.
+ADC Data: 10 a5 
+Triggered ADC conversion.
+ADC Data: 10 a5 
+Triggered ADC conversion.
+ADC Data: 10 a5 
+Triggered ADC conversion.
+ADC Data: 10 a5 
+Triggered ADC conversion.
+ADC Data: 10 a5 
+Triggered ADC conversion.
+ADC Data: 10 a5 
+Triggered ADC conversion.
+ADC Data: 10 a5 
+Triggered ADC conversion.
+ADC Data: 10 a5 
+Triggered ADC conversion.
+ADC Data: 10 a5 
+Triggered ADC conversion.
+ADC Data: 10 a5 
+Triggered ADC conversion.
+ADC Data: 10 a5 
+Triggered ADC conversion.
+ADC Data: 10 a5 
+Triggered ADC conversion.
+ADC Data: 10 a5 
+Triggered ADC conversion.
+ADC Data: 10 a5 
+Triggered ADC conversion.
+ADC Data: 10 a5 
+Triggered ADC conversion.
+ADC Data: 10 a5 
+Buffer disabled.
