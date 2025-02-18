@@ -10,7 +10,7 @@
 #include <unordered_map>
 
 constexpr const char *IIO_DEVICE_NAME = "iio:device0";
-constexpr size_t BUFFER_SIZE = 2; // Assuming 2 bytes per sample
+constexpr size_t BUFFER_SIZE = 2; 
 
 enum class ADS114S0XBRegister {
 	DATARATE,
@@ -114,22 +114,24 @@ public:
     }
 
     std::vector<uint8_t> readBuffer(size_t size = BUFFER_SIZE) {
-        if (!_buffer) {
-            _buffer = iio_device_create_buffer(_dev, size, false);
-            if (!_buffer) {
-                throw std::runtime_error("Failed to create IIO buffer: " + std::string(strerror(errno)));
-            }
+        std::ifstream adc_data_file("/dev/iio:device0", std::ios::binary);
+        if (!adc_data_file) {
+            throw std::runtime_error("Failed to open ADC data file: /dev/iio:device0");
         }
-
-        ssize_t nbytes = iio_buffer_refill(_buffer);
-        if (nbytes < 0) {
-            throw std::runtime_error("Failed to read from IIO buffer.");
+    
+        std::vector<uint8_t> data(size);
+        
+        adc_data_file.read(reinterpret_cast<char*>(data.data()), size);
+        
+        size_t bytesRead = adc_data_file.gcount(); // Get actual bytes read
+        if (bytesRead != size) {
+            std::cerr << "Warning: Read fewer bytes than expected (" << bytesRead << " instead of " << size << ")" << std::endl;
+            data.resize(bytesRead); // Adjust size if fewer bytes were read
         }
-
-        std::vector<uint8_t> data(nbytes);
-        memcpy(data.data(), iio_buffer_first(_buffer, iio_device_get_channel(_dev, 0)), nbytes);
+    
         return data;
     }
+    
 
     bool writeRegister(ADS114S0XBRegister reg, const std::string &value) {
 	if (!_dev)

@@ -30,12 +30,12 @@ root@raspberrypi:/sys/bus/iio/devices/iio:device0#
 
 ## Trigger ADC Read into buffer
 root@raspberrypi:/sys/bus/iio/devices/iio:device0# echo 1 > /sys/bus/iio/devices/trigger0/trigger_now
-root@raspberrypi:/sys/bus/iio/devices/iio:device0# cat /dev/iio:device0 > /home/jairo/out.bin
+root@raspberrypi:/sys/bus/iio/devices/iio:device0# 	 > /home/jairo/out.bin
 
 
 ## Same for Channel 4 (disable channel 0 first)
 root@raspberrypi:/sys/bus/iio/devices/iio:device0# echo 0 > buffer/enable
-root@raspberrypi:/sys/bus/iio/devices/iio:device0# echo 0 > scan_elements/in_voltage0_en
+root@raspberrypi:/sys/bus/iio/devices/iio:device0# echo 1 > scan_elements/in_voltage4_en
 root@raspberrypi:/sys/bus/iio/devices/iio:device0# echo 1 > buffer/enable
 root@raspberrypi:/sys/bus/iio/devices/iio:device0# echo 1 > /sys/bus/iio/devices/trigger0/trigger_now
 root@raspberrypi:/sys/bus/iio/devices/iio:device0# cat /dev/iio:device0 > /home/jairo/out_ch4.bin
