@@ -123,7 +123,7 @@ static int ads114s0xb_write_reg(struct iio_dev *indio_dev, u8 reg, u8 data)
 
 	return spi_write(priv->spi, &priv->data[0], 3);
 }
-
+#if 0
 static int ads114s0xb_read_data(struct iio_dev *indio_dev, int *data)
 {
 	struct ads114s0xb_private *priv = iio_priv(indio_dev);
@@ -140,7 +140,7 @@ static int ads114s0xb_read_data(struct iio_dev *indio_dev, int *data)
 
 	return 0;
 }
-
+#endif
 static int ads114s0xb_read(struct iio_dev *indio_dev)
 {
 	struct ads114s0xb_private *priv = iio_priv(indio_dev);
@@ -193,11 +193,7 @@ static int ads114s0xb_write_cmd(struct iio_dev *indio_dev, u8 command)
 	return spi_write(ads114s0xb_priv->spi, &ads114s0xb_priv->data[0], 1);
 }
 
-/*
-For the sake of simplicity of this exercise, it reads a single value 
-from the ADC channel.
-This could 
-*/
+
 static int ads114s0xb_read_raw(struct iio_dev *indio_dev,
 			       struct iio_chan_spec const *chan, int *val,
 			       int *val2, long mask)
@@ -269,6 +265,8 @@ static ssize_t ads114s0xb_attr_set(struct device *dev,
 	struct iio_dev_attr *iio_attr = to_iio_dev_attr(attr);
 	int val;
 
+	pr_info("ads114s0xb: Setting attribute %s\n", attr->attr.name);
+
 	if (kstrtoint(buf, 10, &val) < 0)
 		return -EINVAL;
 	if (val < 0)
@@ -289,6 +287,37 @@ static ssize_t ads114s0xb_attr_set(struct device *dev,
 	return count;
 }
 
+static int ads114s0xb_update_scan_mode(struct iio_dev *indio_dev,
+	const unsigned long *scan_mask)
+{
+	struct ads114s0xb_private *ads114s0xb_priv = iio_priv(indio_dev);
+	int i, enabled_channel = -1;
+
+	pr_info("ads114s0xb_update_scan_mode\n");
+
+	mutex_lock(&ads114s0xb_priv->lock);
+
+	/* Find the first enabled channel */
+	for (i = 0; i < ads114s0xb_priv->chip_info->num_channels; i++) {
+		if (test_bit(i, scan_mask)) {
+			enabled_channel = i;
+			break;
+		}
+	}
+
+	if (enabled_channel >= 0) {
+		ads114s0xb_write_reg(indio_dev, ADS114S0XB_REGADDR_INPMUX, enabled_channel);
+		dev_info(&ads114s0xb_priv->spi->dev, "Enabled ADC channel %d\n", enabled_channel);
+	} else {
+		ads114s0xb_write_reg(indio_dev, ADS114S0XB_REGADDR_INPMUX, 0xFF); // Disable all
+		dev_info(&ads114s0xb_priv->spi->dev, "Disabled all channels\n");
+	}
+
+	mutex_unlock(&ads114s0xb_priv->lock);
+	return 0;
+}
+
+
 static int ads114s0xb_reset(struct iio_dev *indio_dev)
 {
 	struct ads114s0xb_private *ads114s0xb_priv = iio_priv(indio_dev);
@@ -302,10 +331,6 @@ static int ads114s0xb_reset(struct iio_dev *indio_dev)
 	}
 
 	return 0;
-};
-
-static const struct iio_info ads114s0xb_info = {
-    .read_raw = ads114s0xb_read_raw,
 };
 
 static int ads114s0xb_buffer_preenable(struct iio_dev *indio_dev)
@@ -340,17 +365,69 @@ static int ads114s0xb_buffer_postdisable(struct iio_dev *indio_dev)
 	return 0;
 }
 
+#define IIO_RW_ATTRIBUTE(name, addr)                                           \
+	static IIO_DEVICE_ATTR(                                                \
+		name, 0644, ads114s0xb_attr_get, ads114s0xb_attr_set, addr);
+
+IIO_RW_ATTRIBUTE(ID, ADS114S0XB_REGADDR_ID);
+IIO_RW_ATTRIBUTE(STATUS, ADS114S0XB_REGADDR_STATUS);
+IIO_RW_ATTRIBUTE(INPMUX, ADS114S0XB_REGADDR_INPMUX);
+IIO_RW_ATTRIBUTE(PGA, ADS114S0XB_REGADDR_PGA);
+IIO_RW_ATTRIBUTE(DATARATE, ADS114S0XB_REGADDR_DATARATE);
+IIO_RW_ATTRIBUTE(REF, ADS114S0XB_REGADDR_REF);
+IIO_RW_ATTRIBUTE(IDACMAG, ADS114S0XB_REGADDR_IDACMAG);
+IIO_RW_ATTRIBUTE(IDACMUX, ADS114S0XB_REGADDR_IDACMUX);
+IIO_RW_ATTRIBUTE(VBIAS, ADS114S0XB_REGADDR_VBIAS);
+IIO_RW_ATTRIBUTE(SYS, ADS114S0XB_REGADDR_SYS);
+IIO_RW_ATTRIBUTE(OFCAL0, ADS114S0XB_REGADDR_OFCAL0);
+IIO_RW_ATTRIBUTE(OFCAL1, ADS114S0XB_REGADDR_OFCAL1);
+IIO_RW_ATTRIBUTE(FSCAL0, ADS114S0XB_REGADDR_FSCAL0);
+IIO_RW_ATTRIBUTE(FSCAL1, ADS114S0XB_REGADDR_FSCAL1);
+IIO_RW_ATTRIBUTE(GPIODAT, ADS114S0XB_REGADDR_GPIODAT);
+IIO_RW_ATTRIBUTE(GPIOCON, ADS114S0XB_REGADDR_GPIOCON);
+IIO_RW_ATTRIBUTE(SENSOR_MOCK_MODE, 0xff);
+
+static struct attribute* ads114s0xb_attrs[] = {
+	&iio_dev_attr_ID.dev_attr.attr,
+	&iio_dev_attr_STATUS.dev_attr.attr,
+	&iio_dev_attr_INPMUX.dev_attr.attr,
+	&iio_dev_attr_PGA.dev_attr.attr,
+	&iio_dev_attr_DATARATE.dev_attr.attr,
+	&iio_dev_attr_REF.dev_attr.attr,
+	&iio_dev_attr_IDACMAG.dev_attr.attr,
+	&iio_dev_attr_IDACMUX.dev_attr.attr,
+	&iio_dev_attr_VBIAS.dev_attr.attr,
+	&iio_dev_attr_SYS.dev_attr.attr,
+	&iio_dev_attr_OFCAL0.dev_attr.attr,
+	&iio_dev_attr_OFCAL1.dev_attr.attr,
+	&iio_dev_attr_FSCAL0.dev_attr.attr,
+	&iio_dev_attr_FSCAL1.dev_attr.attr,
+	&iio_dev_attr_GPIODAT.dev_attr.attr,
+	&iio_dev_attr_GPIOCON.dev_attr.attr,
+	&iio_dev_attr_SENSOR_MOCK_MODE.dev_attr.attr,
+	NULL,
+};
+
+static const struct attribute_group ads114s0xb_attr_group = {
+	.attrs = ads114s0xb_attrs,
+};
+
+static const struct iio_info ads114s0xb_info = {
+	.read_raw = ads114s0xb_read_raw,
+	.attrs = &ads114s0xb_attr_group,
+	.update_scan_mode = ads114s0xb_update_scan_mode,
+};
 
 // Simulated sensor raw values
-static int sensor_raw_value_0 = 42256;
-static int sensor_raw_value_1 = 25642;
+static int sensor_raw_value_0 = 42256; // 0xA510
 static irqreturn_t ads114s0xb_trigger_handler(int irq, void *private) {
 	struct iio_poll_func *pf = private;
 	struct iio_dev *indio_dev = pf->indio_dev;
 	struct ads114s0xb_private *ads114s0xb_priv = iio_priv(indio_dev);
+
+	pr_info("ads114s0xb_trigger_handler: Called");
 	
 	ads114s0xb_priv->buffer[0] = sensor_raw_value_0;
-	ads114s0xb_priv->buffer[1] = sensor_raw_value_1;
 
 	iio_push_to_buffers_with_timestamp(indio_dev, ads114s0xb_priv->buffer, 
 		iio_get_time_ns(indio_dev));

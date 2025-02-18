@@ -1,0 +1,55 @@
+
+## Loading the Modules
+jairo@raspberrypi:~ $ sudo modprobe industrialio
+jairo@raspberrypi:~ $ sudo modprobe industrialio-buffer-cb
+jairo@raspberrypi:~ $ sudo modprobe industrialio-triggered-buffer
+jairo@raspberrypi:~ $ sudo modprobe iio-trig-sysfs
+
+## Loading the ADS114S0xB driver
+jairo@raspberrypi:~/drivers/ADS114S0xB-Delta-Sigma-ADC/linux-embedded-driver $ ls
+Makefile       Module.symvers   ti-ads114s0xb.ko   ti-ads114s0xb.mod.c  ti-ads114s0xb.o
+modules.order  ti-ads114s0xb.c  ti-ads114s0xb.mod  ti-ads114s0xb.mod.o  ti-ads124s08.c
+jairo@raspberrypi:~/drivers/ADS114S0xB-Delta-Sigma-ADC/linux-embedded-driver $ make insmod 
+sudo insmod ti-ads114s0xb.ko
+jairo@raspberrypi:~/drivers/ADS114S0xB-Delta-Sigma-ADC/linux-embedded-driver $
+
+## Starting the Buffer Mode
+jairo@raspberrypi:~ $ sudo su -
+root@raspberrypi:~# cd /sys/bus/iio/devices/iio_sysfs_trigger
+root@raspberrypi:/sys/bus/iio/devices/iio_sysfs_trigger# ls
+add_trigger  power  remove_trigger  subsystem  uevent
+root@raspberrypi:/sys/bus/iio/devices/iio_sysfs_trigger# echo 123 > add_trigger
+root@raspberrypi:/sys/bus/iio/devices/iio_sysfs_trigger# cd /sys/bus/iio/devices/trigger0
+root@raspberrypi:/sys/bus/iio/devices/trigger0# cat name
+sysfstrig123
+root@raspberrypi:/sys/bus/iio/devices/trigger0# cd /sys/bus/iio/devices/iio:device0
+root@raspberrypi:/sys/bus/iio/devices/iio:device0# echo sysfstrig123 > trigger/current_trigger
+root@raspberrypi:/sys/bus/iio/devices/iio:device0# echo 1 > scan_elements/in_voltage0_en
+root@raspberrypi:/sys/bus/iio/devices/iio:device0# echo 1 > buffer/enable
+root@raspberrypi:/sys/bus/iio/devices/iio:device0#
+
+## Trigger ADC Read into buffer
+root@raspberrypi:/sys/bus/iio/devices/iio:device0# echo 1 > /sys/bus/iio/devices/trigger0/trigger_now
+root@raspberrypi:/sys/bus/iio/devices/iio:device0# cat /dev/iio:device0 > /home/jairo/out.bin
+
+
+## Same for Channel 4 (disable channel 0 first)
+root@raspberrypi:/sys/bus/iio/devices/iio:device0# echo 0 > buffer/enable
+root@raspberrypi:/sys/bus/iio/devices/iio:device0# echo 0 > scan_elements/in_voltage0_en
+root@raspberrypi:/sys/bus/iio/devices/iio:device0# echo 1 > buffer/enable
+root@raspberrypi:/sys/bus/iio/devices/iio:device0# echo 1 > /sys/bus/iio/devices/trigger0/trigger_now
+root@raspberrypi:/sys/bus/iio/devices/iio:device0# cat /dev/iio:device0 > /home/jairo/out_ch4.bin
+^C
+root@raspberrypi:/sys/bus/iio/devices/iio:device0# echo 0 > buffer/enable
+root@raspberrypi:/sys/bus/iio/devices/iio:device0# 
+
+## Buffer received confirmation
+jairo@raspberrypi:~ $ hexdump -C out.bin
+00000000  10 a5                                             |..|
+00000002
+jairo@raspberrypi:~ $ 
+
+jairo@raspberrypi:~ $ hexdump -C out_ch4.bin
+00000000  10 a5                                             |..|
+00000002
+

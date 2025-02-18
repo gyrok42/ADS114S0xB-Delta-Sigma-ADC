@@ -7,12 +7,37 @@ Exercise on TI-ADS114S0XB ADC linux device driver
 `sudo modprobe iio-trig-sysfs`
 
 
-
+########################################
 sudo modprobe industrialio
 sudo modprobe industrialio-buffer-cb
 sudo modprobe industrialio-triggered-buffer
 sudo modprobe iio-trig-sysfs
 sudo modprobe industrialio-buf-kfifo
+
+modprobe iio_trig_sysfs
+modprobe iio_dummy
+
+modprobe iio_trig_sysfs
+modprobe iio_dummy (make sure CONFIG_IIO_SIMPLE_DUMMY_BUFFER is #defined)
+cd /sys/bus/iio/devices/iio_sysfs_trigger
+echo 123 > add_trigger
+cd /sys/bus/iio/devices/trigger0
+cat name # should give sysfstrig123
+cd /sys/bus/iio/devices/iio:device0
+echo sysfstrig123 > trigger/current_trigger
+echo 1 > scan_elements/in_voltage0_en
+echo 1 > buffer/enable
+########################################
+
+cd /sys/bus/iio/devices/iio_sysfs_trigger
+echo 123 > add_trigger
+cd /sys/bus/iio/devices/trigger0
+cat name # should give sysfstrig123
+cd /sys/bus/iio/devices/iio:device0
+echo sysfstrig123 > trigger/current_trigger
+echo 1 > scan_elements/in_voltage0_en
+echo 1 > buffer/enable
+
 
 
 
