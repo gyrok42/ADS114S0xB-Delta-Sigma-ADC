@@ -1,0 +1,11 @@
+Checking INPMUX channel number validation
+=========================================
+echo 6 > /sys/bus/iio/devices/iio:device0/INPMUX
+echo 20 > /sys/bus/iio/devices/iio:device0/INPMUX
+echo 5 > /sys/bus/iio/devices/iio:device0/INPMUX
+
+[26254.171628] ads114s0xb: Probing SPI driver
+[26254.171742] ads114s0xb: SPI driver successfully registered
+[26263.875849] ads114s0xb: Channel 20 does not exist for ads114s06b
+[26305.571729] ads114s0xb: Channel 6 does not exist for ads114s06b
+[26439.384305] ads114s0xb: Attribute INPMUX set to 5
