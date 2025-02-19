@@ -1,0 +1,98 @@
+root@raspberrypi:/home/jairo/drivers/ADS114S0xB-Delta-Sigma-ADC/linux-user-app# ./user-space-app 
+Switched to channel: 0
+ADC Data: 10 a5 
+ADC Data: 10 a5 
+ADC Data: 10 a5 
+ADC Data: 10 a5 
+ADC Data: 10 a5 
+ADC Data: 10 a5 
+ADC Data: 10 a5 
+ADC Data: 10 a5 
+ADC Data: 10 a5 
+ADC Data: 10 a5 
+ADC Data: 10 a5 
+ADC Data: 10 a5 
+ADC Data: 10 a5 
+ADC Data: 10 a5 
+ADC Data: 10 a5 
+ADC Data: 10 a5 
+ADC Data: 10 a5 
+ADC Data: 10 a5 
+ADC Data: 10 a5 
+ADC Data: 10 a5 
+Read register success: 
+Read VBIAS register sucess: 
+Read register success: 
+Read SYS register sucess: 
+Read register success: 
+Read STATUS register sucess: 
+Read register success: 
+Read SENSOR_MOCK_MODE register sucess: 
+Read register success: 
+Read DATARATE register sucess: 
+Read register success: 
+Read FSCAL0 register sucess: 
+Read register success: 
+Read FSCAL1 register sucess: 
+Read register success: 
+Read GPIOCON register sucess: 
+Read register success: 
+Read GPIODAT register sucess: 
+Read register success: 
+Read ID register sucess: 
+Read register success: 
+Read IDACMAG register sucess: 
+Read register success: 
+Read IDACMUX register sucess: 
+Read register success: 
+Read INPMUX register sucess: 
+Read register success: 
+Read OFCAL0 register sucess: 
+Read register success: 
+Read OFCAL1 register sucess: 
+Read register success: 
+Read PGA register sucess: 
+Read register success: 
+Read REF register sucess: 
+Read register success: 
+root@raspberrypi:/home/jairo/drivers/ADS114S0xB-Delta-Sigma-ADC/linux-user-app# dmesg | tail -40
+[88392.649473] ads114s0xb_trigger_handler: Called
+[88392.649493] ads114s0xb_trigger_handler: Called
+[88392.649510] ads114s0xb_trigger_handler: Called
+[88392.649526] ads114s0xb_trigger_handler: Called
+[88392.649572] ads114s0xb: Attribute FSCAL0 to be read
+[88392.649630] ads114s0xb: ads114s0xb_read_reg ret = 1
+[88392.649668] ads114s0xb: Attribute VBIAS to be read
+[88392.649717] ads114s0xb: ads114s0xb_read_reg ret = 1
+[88392.649741] ads114s0xb: Attribute SYS to be read
+[88392.649784] ads114s0xb: ads114s0xb_read_reg ret = 1
+[88392.649805] ads114s0xb: Attribute STATUS to be read
+[88392.649848] ads114s0xb: ads114s0xb_read_reg ret = 1
+[88392.649870] ads114s0xb: Attribute SENSOR_MOCK_MODE to be read
+[88392.649914] ads114s0xb: ads114s0xb_read_reg ret = 1
+[88392.649935] ads114s0xb: Attribute DATARATE to be read
+[88392.649980] ads114s0xb: ads114s0xb_read_reg ret = 1
+[88392.650000] ads114s0xb: Attribute FSCAL0 to be read
+[88392.650045] ads114s0xb: ads114s0xb_read_reg ret = 1
+[88392.650066] ads114s0xb: Attribute FSCAL1 to be read
+[88392.650108] ads114s0xb: ads114s0xb_read_reg ret = 1
+[88392.650129] ads114s0xb: Attribute GPIOCON to be read
+[88392.650172] ads114s0xb: ads114s0xb_read_reg ret = 1
+[88392.650191] ads114s0xb: Attribute GPIODAT to be read
+[88392.650234] ads114s0xb: ads114s0xb_read_reg ret = 1
+[88392.650247] ads114s0xb: Attribute ID to be read
+[88392.650291] ads114s0xb: ads114s0xb_read_reg ret = 1
+[88392.650304] ads114s0xb: Attribute IDACMAG to be read
+[88392.650347] ads114s0xb: ads114s0xb_read_reg ret = 1
+[88392.650361] ads114s0xb: Attribute IDACMUX to be read
+[88392.650412] ads114s0xb: ads114s0xb_read_reg ret = 1
+[88392.650427] ads114s0xb: Attribute INPMUX to be read
+[88392.650471] ads114s0xb: ads114s0xb_read_reg ret = 1
+[88392.650484] ads114s0xb: Attribute OFCAL0 to be read
+[88392.650526] ads114s0xb: ads114s0xb_read_reg ret = 1
+[88392.650540] ads114s0xb: Attribute OFCAL1 to be read
+[88392.650584] ads114s0xb: ads114s0xb_read_reg ret = 1
+[88392.650598] ads114s0xb: Attribute PGA to be read
+[88392.650640] ads114s0xb: ads114s0xb_read_reg ret = 1
+[88392.650653] ads114s0xb: Attribute REF to be read
+[88392.650696] ads114s0xb: ads114s0xb_read_reg ret = 1
