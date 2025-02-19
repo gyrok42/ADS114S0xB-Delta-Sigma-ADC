@@ -205,10 +205,12 @@ static int ads114s0xb_read_raw(struct iio_dev *indio_dev,
 	switch (mask) {
 	case IIO_CHAN_INFO_RAW:
 		pr_info("ads114s0xb: Reading channel %d\n", chan->channel);
-		ret = ads114s0xb_write_reg(indio_dev, ADS114S0XB_REGADDR_INPMUX,
+		ret = ads114s0xb_write_reg(indio_dev, 
+			ADS114S0XB_REGADDR_INPMUX,
 			chan->channel);
 		if (ret) {
-			dev_err(&ads114s0xb_priv->spi->dev, "Set ADC CH failed\n");
+			dev_err(&ads114s0xb_priv->spi->dev, 
+				"Set ADC CH failed\n");
 			goto output;
 		}
 		ret = ads114s0xb_write_cmd(indio_dev, ADS114S0XB_CMD_START);
@@ -306,11 +308,15 @@ static int ads114s0xb_update_scan_mode(struct iio_dev *indio_dev,
 	}
 
 	if (enabled_channel >= 0) {
-		ads114s0xb_write_reg(indio_dev, ADS114S0XB_REGADDR_INPMUX, enabled_channel);
-		dev_info(&ads114s0xb_priv->spi->dev, "Enabled ADC channel %d\n", enabled_channel);
+		ads114s0xb_write_reg(indio_dev, ADS114S0XB_REGADDR_INPMUX, 
+			enabled_channel);
+		dev_info(&ads114s0xb_priv->spi->dev, 
+			"Enabled ADC channel %d\n", enabled_channel);
 	} else {
-		ads114s0xb_write_reg(indio_dev, ADS114S0XB_REGADDR_INPMUX, 0xFF); // Disable all
-		dev_info(&ads114s0xb_priv->spi->dev, "Disabled all channels\n");
+		ads114s0xb_write_reg(indio_dev, 
+			ADS114S0XB_REGADDR_INPMUX, 0x00); // Default
+		dev_info(&ads114s0xb_priv->spi->dev, 
+			"Set the default (0) channel\n");
 	}
 
 	mutex_unlock(&ads114s0xb_priv->lock);
@@ -419,7 +425,7 @@ static const struct iio_info ads114s0xb_info = {
 };
 
 // Simulated sensor raw values
-static int sensor_raw_value_0 = 42256; // 0xA510
+static int sensor_raw_value_0 = 0xA510;
 static irqreturn_t ads114s0xb_trigger_handler(int irq, void *private) {
 	struct iio_poll_func *pf = private;
 	struct iio_dev *indio_dev = pf->indio_dev;
@@ -427,6 +433,8 @@ static irqreturn_t ads114s0xb_trigger_handler(int irq, void *private) {
 
 	pr_info("ads114s0xb_trigger_handler: Called");
 	
+	ads114s0xb_priv->buffer[0] = ads114s0xb_read(indio_dev);
+	// Mock
 	ads114s0xb_priv->buffer[0] = sensor_raw_value_0;
 
 	iio_push_to_buffers_with_timestamp(indio_dev, ads114s0xb_priv->buffer, 

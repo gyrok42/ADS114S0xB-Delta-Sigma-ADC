@@ -1,13 +1,15 @@
-# ADS114S0xB Delta-Sigma ADC Device Driver and User Application
+# ADS114S0xB Delta-Sigma ADC
 
-## Goal: Key Driver Components
+#### Device Driver and User Application
+
+### Goals and Key Driver Components
 
 A driver that performs the following:
 
-- **Initialization of device**
-- **Exercise valid SPI read/write operations**
-- **Ability to Read/Write to all registers on the device**
-- **Read valid ADC values from the device**
+- Initialization of device
+- Exercise valid SPI read/write operations
+- Ability to Read/Write to all registers on the device
+- Read valid ADC values from the device
 
 ### User Space Application
 A user space application that interacts with the developed driver should be created that shows:
@@ -17,7 +19,8 @@ A user space application that interacts with the developed driver should be crea
 - How to change ADC channels
 
 ### Configuration and Initialization Scripts
-The project includes a script to assist with configuring and initializing the ADS114S0XB device. The script provides a menu with the following options:
+The project includes a script to assist with configuring and initializing the ADS114S0XB device. 
+The script provides a menu with the following options:
 
 ```
 ==================================
@@ -32,33 +35,46 @@ The project includes a script to assist with configuring and initializing the AD
 ==================================
 ```
 
-The script automates essential setup tasks, ensuring that the driver is properly installed and the IIO interface is configured before data acquisition.
+The script automates essential setup tasks, ensuring that the driver is properly installed and 
+the IIO interface is configured before data acquisition.
 
 **Important Notes:**
 - **Options 1 to 4 are necessary** for setting up the environment before using the ADC.
 - The script should be **executed as root** to ensure proper module loading and driver installation.
 
-The project includes a script to assist with configuring and initializing the ADS114S0XB device. The script provides a menu with the following options:
+The project includes a script to assist with configuring and initializing the ADS114S0XB device. 
+The script provides a menu with the following options:
 
 
 ## Overview
 
-This project provides a device driver and a user-space application for the **Texas Instruments ADS114S0xB** series of Delta-Sigma ADCs. These ADCs are designed to measure low-voltage signals with high precision, making them suitable for sensor transducers, temperature controllers, and other industrial applications.
+This project provides a device driver and a user-space application for the 
+**Texas Instruments ADS114S0xB** series of Delta-Sigma ADCs. 
+These ADCs are designed to measure low-voltage signals with high precision, 
+making them suitable for sensor transducers, temperature controllers, 
+and other industrial applications.
 
-The driver implements a **Linux Industrial I/O (IIO) framework**-based SPI interface for the ADS114S0xB ADC, allowing user-space applications to communicate with the hardware efficiently. The user-space application demonstrates how to interact with the ADC, configure its settings, and retrieve voltage readings.
+The driver implements a **Linux Industrial I/O (IIO) framework**-based SPI 
+interface for the ADS114S0xB ADC, allowing user-space applications to communicate 
+with the hardware efficiently. The user-space application demonstrates how to 
+interact with the ADC, configure its settings, and retrieve voltage readings.
 
 ## Features
 
 - Support for ADS114S06B and ADS114S08B models
 - SPI-based communication using the Linux IIO framework
-- Support for channel selection and configuration via the INPMUX register
-- Programmable Gain Amplifier (PGA) with configurable gain settings
-- Support for external and internal voltage references
+- Support for channel selection
+- Exposed registers for read/write configurations
 - User-space application to trigger ADC conversions and read results
 
 ## How the ADS114S0xB ADC Works
 
-The **ADS114S0xB** series ADCs include a **multiplexer (mux)** that allows selection of different input channels. However, only **one channel can be converted at a time**. Before starting a conversion, the **INPMUX register must be configured properly** to select the desired channel. The ADC then performs a conversion and outputs the digital result over SPI.
+The **ADS114S0xB** series ADCs include a **multiplexer (mux)** that allows 
+selection of different input channels. However, only 
+**one channel can be converted at a time**. 
+Before starting a conversion, the **INPMUX register must be configured properly** 
+to select the desired channel. The ADC then performs a conversion and 
+outputs the digital result over SPI.
 
 ### Key Functional Components
 
@@ -106,7 +122,8 @@ g++ user-space-app.cpp -o user-space-app -liio
 
 ### Configuring and Reading ADC Values
 
-Once the driver is loaded, the ADC can be configured using the **sysfs** interface provided by the IIO framework or by using the user-space application.
+Once the driver is loaded, the ADC can be configured using the **sysfs** 
+interface provided by the IIO framework or by using the user-space application.
 
 ## Directory Structure
 

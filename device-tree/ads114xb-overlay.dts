@@ -1,6 +1,6 @@
 /dts-v1/;
 /plugin/;
-
+// Example on raspberrypi 5
 / {
     compatible = "brcm,bcm2835";
 
@@ -12,9 +12,9 @@
             ads114s06b@0 {
                 compatible = "ti,ads114s06b";
                 reg = <0>;  // SPI CS 0
-                spi-max-frequency = <2000000>;  // Set appropriate SPI speed
+                spi-max-frequency = <2000000>;  // Max for ads114s06b is 4.096MHz
+                reset-gpios = <&gpio 25 0>; // GPIO25 as reset pin
             };
         };
     };
 };
-
