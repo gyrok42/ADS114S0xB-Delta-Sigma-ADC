@@ -16,6 +16,31 @@ A user space application that interacts with the developed driver should be crea
 - How to read register values
 - How to change ADC channels
 
+### Configuration and Initialization Scripts
+The project includes a script to assist with configuring and initializing the ADS114S0XB device. The script provides a menu with the following options:
+
+```
+==================================
+ ADS114S0XB Configuration Menu
+==================================
+1. Load required modules
+2. Load ADS114S0XB driver
+3. Install ADS114S0XB driver
+4. Configure IIO interface
+5. Unload ADS114S0XB driver
+6. Exit
+==================================
+```
+
+The script automates essential setup tasks, ensuring that the driver is properly installed and the IIO interface is configured before data acquisition.
+
+**Important Notes:**
+- **Options 1 to 4 are necessary** for setting up the environment before using the ADC.
+- The script should be **executed as root** to ensure proper module loading and driver installation.
+
+The project includes a script to assist with configuring and initializing the ADS114S0XB device. The script provides a menu with the following options:
+
+
 ## Overview
 
 This project provides a device driver and a user-space application for the **Texas Instruments ADS114S0xB** series of Delta-Sigma ADCs. These ADCs are designed to measure low-voltage signals with high precision, making them suitable for sensor transducers, temperature controllers, and other industrial applications.
@@ -83,6 +108,32 @@ g++ user-space-app.cpp -o user-space-app -liio
 
 Once the driver is loaded, the ADC can be configured using the **sysfs** interface provided by the IIO framework or by using the user-space application.
 
+## Directory Structure
+
+```
+.
+├── device-tree
+│   ├── ads114xb-overlay.dtbo
+│   └── ads114xb-overlay.dts
+├── LICENSE
+├── linux-embedded-driver
+│   ├── Makefile
+│   └── ti-ads114s0xb.c
+├── linux-user-app
+│   ├── ADS114S0XB.h
+│   ├── Makefile
+│   └── ser-space-app.cpp
+├── README.md
+├── scripts
+│   └── config_menu.sh
+└── tests
+    ├── buffer_reading_from_app.txt
+    ├── channel_set_buffer_read.txt
+    ├── dmesg_log.txt
+    ├── parameter_validation_evidences.txt
+    └── registration_evidences.txt
+```
 
 ## References
 For more details, refer to the [ADS114S0xB Datasheet](https://www.ti.com/lit/ds/symlink/ads114s08b.pdf).
+
