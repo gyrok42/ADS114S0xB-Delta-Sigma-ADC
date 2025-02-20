@@ -28,6 +28,7 @@ void readAdcData (adcs::ADS114S0XB &adc, int channel, int count) {
       std::cout << "Error reading ADC data" << std::endl;
     }
   }
+  adc.resetChannel(channel);
   adc.disableBuffer();
 }
 

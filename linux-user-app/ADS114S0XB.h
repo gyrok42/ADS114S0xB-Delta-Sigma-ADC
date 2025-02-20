@@ -96,9 +96,15 @@ public:
         setAttribute(
             _iioSysfs.getVoltageEnable(channel), 
             _iioSysfs.getFlagOn());
-        enableBuffer();
-        std::cout << "Switched to channel: " << channel << std::endl;
     }
+    void resetChannel(int channel) {
+        disableBuffer();
+        setAttribute(
+            _iioSysfs.getVoltageEnable(channel), 
+            _iioSysfs.getFlagOff());
+
+    }
+    
     
     void enableBuffer() {
         setAttribute(_iioSysfs.getBufferEnable(), _iioSysfs.getFlagOn());

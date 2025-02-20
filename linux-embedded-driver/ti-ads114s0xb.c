@@ -463,6 +463,8 @@ static irqreturn_t ads114s0xb_trigger_handler(int irq, void *private) {
 	struct ads114s0xb_private *ads114s0xb_priv = iio_priv(indio_dev);
 
 	pr_info("ads114s0xb_trigger_handler: Called");
+
+	ads114s0xb_write_cmd(indio_dev, ADS114S0XB_CMD_START);
 	
 	ads114s0xb_priv->buffer[0] = ads114s0xb_read(indio_dev);
 	// Mock
@@ -472,6 +474,8 @@ static irqreturn_t ads114s0xb_trigger_handler(int irq, void *private) {
 			sizeof ads114s0xb_priv->mock_data);
 		ads114s0xb_priv->mock_data++;
 	}
+
+	ads114s0xb_write_cmd(indio_dev, ADS114S0XB_CMD_STOP);
 
 	iio_push_to_buffers_with_timestamp(indio_dev, ads114s0xb_priv->buffer, 
 		iio_get_time_ns(indio_dev));
