@@ -12,7 +12,6 @@ void readAdcData (adcs::ADS114S0XB &adc, int channel, int count) {
       std::cout << "Error triggering." << std::endl;
       break;
     }
-
     // Read and display buffer data
     auto data = adc.readBuffer();
     if (data) {
@@ -39,7 +38,6 @@ void readRegisters(adcs::ADS114S0XB &adc) {
   else {
     std::cout << "Error reading register" << std::endl;
   }
-
   // Reading ALL registers
   for (auto &reg_id : adc.registerMap) {
     if (auto reg = adc.readRegister(reg_id.first)) {
@@ -47,13 +45,34 @@ void readRegisters(adcs::ADS114S0XB &adc) {
         << "Read " << reg_id.second 
         << " register sucess: " << reg.value()
         << std::endl;
-        std::cout << "Read register success: " << reg.value() << std::endl;
     }
     else {
       std::cout << "Error reading register" << std::endl;
     }
   }
 }
+
+void writeRegisters(adcs::ADS114S0XB &adc) {
+  using namespace adcs;
+  using ADS114S0XB::ADS114S0XBRegister::DATARATE;
+
+  adc.writeRegister(DATARATE, "5");
+
+  // Writing ALL registers
+  for (auto &reg_id : adc.registerMap) {
+    if (auto size = adc.writeRegister(DATARATE, "5")) {
+      std::cout 
+        << "Write " << reg_id.second 
+        << " register sucess: " << size.value()
+        << " bytes"
+        << std::endl;
+    }
+    else {
+      std::cout << "Error reading register" << std::endl;
+    }
+  }
+}
+
 int main() {
   using namespace adcs;
   ADS114S0XB adc;
@@ -61,6 +80,7 @@ int main() {
   auto channel = 3;
   readAdcData(adc, channel, 20);
   readRegisters(adc);
+  writeRegisters(adc);
  
   return EXIT_SUCCESS;
 }
