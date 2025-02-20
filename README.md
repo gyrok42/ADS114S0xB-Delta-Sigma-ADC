@@ -320,14 +320,9 @@ is able to trigger the driver to send more ADC data. In that scenario, the user 
 the channel via `scan_elements/in_voltageX_en` sysfs file. For example, `echo 1 > scan_elements/in_voltage5_en` 
 will call the handler `ads114s0xb_update_scan_mode`. 
 It can be implemented something like after a trigger, it reads like 100 samples so the user space app can do
-an averaging or anything else. And the user space would have the capability to do it to each channel.
-However, in the perspective of signal processing, it is not desirable to have jitter in the sampling. This
-process that I mentioned above would probably have jitter. The sampling would be uneven adding undesired signal
-distortion.
-We are not also coverint the differencial channels and other capabilities of the chip at this exercise, however
-I am just mentioning that this might be a possibility we have with thise mechaninsm. The IIO framework is great!
-I created this user trigger. However, it can be triggered from the ready signal
-from the chip. There are many options to explore.
+an averaging or anything else if jitter issues don't show up. 
+And the user space would have the capability to do it to each channel.
+I created this user trigger. However, it can be triggered a hardware signal.
 It is important to mention that this chip does not have internal fifo. It just converts and put the data on the
 internal shift register to serialize the data in the SPU bus. This chip set with the maximum sampling rate,
 which is 4KSps would generate a 2-byte sample data ready every 250 microseconds. 
