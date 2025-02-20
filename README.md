@@ -130,24 +130,31 @@ interface provided by the IIO framework or by using the user-space application.
 ```
 .
 ├── device-tree
-│   ├── ads114xb-overlay.dtbo
-│   └── ads114xb-overlay.dts
+│   ├── ads114xb-overlay.dtbo
+│   └── ads114xb-overlay.dts
 ├── LICENSE
 ├── linux-embedded-driver
-│   ├── Makefile
-│   └── ti-ads114s0xb.c
+│   ├── Makefile
+│   ├── README.md
+│   └── ti-ads114s0xb.c
 ├── linux-user-app
-│   ├── ADS114S0XB.h
-│   ├── Makefile
-│   └── ser-space-app.cpp
+│   ├── ADS114S0XB.h
+│   ├── IIOSysfsFilesUtil.h
+│   ├── Makefile
+│   ├── README.md
+│   └── user-space-app.cpp
 ├── README.md
 ├── scripts
-│   └── config_menu.sh
+│   ├── config_menu.sh
+│   └── README.md
 └── tests
     ├── buffer_reading_from_app.txt
     ├── channel_set_buffer_read.txt
     ├── dmesg_log.txt
+    ├── drafts.txt
+    ├── linux-user-app-evidence.txt
     ├── parameter_validation_evidences.txt
+    ├── README.md
     └── registration_evidences.txt
 ```
 
