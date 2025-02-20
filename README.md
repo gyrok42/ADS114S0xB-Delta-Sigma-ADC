@@ -53,16 +53,16 @@ The driver provides an interface for the ADC through the **Linux IIO subsystem**
 
 The user application interacts with the device driver via **libiio**. It:
 
-- Initializes the ADC
 - Configures the desired channel
+- It is capable to read/write the ADC registers with the interface provided by the driver.
 - Triggers a conversion
 - Reads and displays the acquired voltage data
   
 #### Device Driver and User Application
 
-### Goals and Key Driver Components
+### Goals
 
-A driver that performs the following:
+The driver performs the following:
 
 - Initialization of device
 - Exercise valid SPI read/write operations
