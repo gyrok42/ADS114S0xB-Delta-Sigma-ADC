@@ -49,3 +49,19 @@ Before running this script, ensure:
   dmesg | grep ads114s0xb
   ```
 - Verify the IIO device appears under `/sys/bus/iio/devices/`.
+
+## Important note
+
+The sequence for start the module is
+
+1. Load required modules - It loads IIO required modules, once per linux boot.
+
+5. Unload ADS114S0XB driver - If the module was previously loaded. When you rebuild the module, unload it before calling option 2 again.
+
+2. Load ADS114S0XB driver - It compiles the device driver and calls insmod to add it to the kernel
+
+3. Install ADS114S0XB driver - Not necessary, you may skip it
+
+4. Configure IIO interface
+
+5. Unload ADS114S0XB driver - When you rebuild the module, unload it before calling option 2 again.
