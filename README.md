@@ -431,6 +431,7 @@ int main() {
   
   auto channel = 3;
   // How to read ADC values / How to change ADC channels
+  // Read 20 samples
   readAdcData(adc, channel, 20);
   // How to read register values
   readRegisters(adc);
