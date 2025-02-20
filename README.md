@@ -321,10 +321,17 @@ the channel via `scan_elements/in_voltageX_en` sysfs file. For example, `echo 1 
 will call the handler `ads114s0xb_update_scan_mode`. 
 It can be implemented something like after a trigger, it reads like 100 samples so the user space app can do
 an averaging or anything else. And the user space would have the capability to do it to each channel.
+However, in the perspective of signal processing, it is not desirable to have jitter in the sampling. This
+process that I mentioned above would probably have jitter. The sampling would be uneven adding undesired signal
+distortion.
 We are not also coverint the differencial channels and other capabilities of the chip at this exercise, however
 I am just mentioning that this might be a possibility we have with thise mechaninsm. The IIO framework is great!
 I created this user trigger. However, it can be triggered from the ready signal
-from the chip. There are many options to explore. 
+from the chip. There are many options to explore.
+It is important to mention that this chip does not have internal fifo. It just converts and put the data on the
+internal shift register to serialize the data in the SPU bus. This chip set with the maximum sampling rate,
+which is 4KSps would generate a 2-byte sample data ready every 250 microseconds. 
+A SPI with DMA support could be an option depending on the constraints of the hardware.
 ```cpp
 static int ads114s0xb_update_scan_mode(struct iio_dev *indio_dev,
 	const unsigned long *scan_mask)
