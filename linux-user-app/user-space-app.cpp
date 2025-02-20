@@ -63,7 +63,7 @@ void writeRegisters(adcs::ADS114S0XB &adc) {
 
   // Writing ALL registers
   for (auto &reg_id : adc.registerMap) {
-    if (auto size = adc.writeRegister(DATARATE, "5")) {
+    if (auto size = adc.writeRegister(reg_id.first, "5")) {
       std::cout 
         << "Write " << reg_id.second 
         << " register sucess: " << size.value()
