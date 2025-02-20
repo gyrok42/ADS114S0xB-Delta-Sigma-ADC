@@ -276,12 +276,13 @@ static ssize_t ads114s0xb_attr_get(struct device *dev,
 	struct iio_dev *indio_dev = dev_to_iio_dev(dev);
 	struct iio_dev_attr *iio_attr = to_iio_dev_attr(attr);
 	int ret;
+	u8 val;
 
 	pr_info("ads114s0xb: Attribute %s to be read\n", attr->attr.name);
-	ret = ads114s0xb_read_reg(indio_dev, (u8)(iio_attr->address), buf);
-	pr_info("ads114s0xb: ads114s0xb_read_reg ret = %d, val = %x\n", ret, *buf);
+	ret = ads114s0xb_read_reg(indio_dev, (u8)(iio_attr->address), &val);
+	pr_info("ads114s0xb: ads114s0xb_read_reg ret = %d, val = %x\n", ret, val);
 
-	return ret;
+	return scnprintf(buf, PAGE_SIZE, "%u\n", val);
 }
 
 static ssize_t ads114s0xb_attr_set(struct device *dev,
