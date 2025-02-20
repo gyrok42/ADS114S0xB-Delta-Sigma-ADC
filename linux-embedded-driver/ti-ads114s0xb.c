@@ -49,6 +49,7 @@
 #define ADS114S0XB_REGADDR_FSCAL1 0x0f
 #define ADS114S0XB_REGADDR_GPIODAT 0x10
 #define ADS114S0XB_REGADDR_GPIOCON 0x11
+#define ADS114S0XB_REGADDR_MOCK 0xff
 
 enum ads114s0xb {
 	ADS114S06B_ID,
@@ -67,6 +68,8 @@ struct ads114s0xb_private {
 	struct gpio_desc *reset_gpio;
 	const struct ads114s0xb_chip_info *chip_info;
 	struct mutex lock;
+	int mock_flag;
+	u16 mock_data;
 };
 
 #define ADS114S0XB_CHAN(index)                                                 \
@@ -143,44 +146,67 @@ static int ads114s0xb_read_data(struct iio_dev *indio_dev, int *data)
 #endif
 static int ads114s0xb_read(struct iio_dev *indio_dev)
 {
-	struct ads114s0xb_private *priv = iio_priv(indio_dev);
+	struct ads114s0xb_private *ads114s0xb_priv = iio_priv(indio_dev);
 	int ret;
 	struct spi_transfer t[] = {
 		{
-			.tx_buf = &priv->data[0],
+			.tx_buf = &ads114s0xb_priv->data[0],
 			.len = 3,
 			.cs_change = 1,
 		}, {
-			.tx_buf = &priv->data[1],
-			.rx_buf = &priv->data[1],
+			.tx_buf = &ads114s0xb_priv->data[1],
+			.rx_buf = &ads114s0xb_priv->data[1],
 			.len = 3,
 		},
 	};
 
-	priv->data[0] = ADS114S0XB_CMD_RDATA;
-	memset(&priv->data[1], ADS114S0XB_CMD_NOP, sizeof(priv->data) - 1);
+	ads114s0xb_priv->data[0] = ADS114S0XB_CMD_RDATA;
+	memset(
+		&ads114s0xb_priv->data[1], 
+		ADS114S0XB_CMD_NOP, 
+		sizeof(ads114s0xb_priv->data) - 1);
 
-	ret = spi_sync_transfer(priv->spi, t, ARRAY_SIZE(t));
+	ret = spi_sync_transfer(
+		ads114s0xb_priv->spi, t, 
+		ARRAY_SIZE(t));
 	if (ret < 0)
 		return ret;
 
-	return get_unaligned_be16(&priv->data[2]);
+	if (ads114s0xb_priv->mock_flag != 0) {
+		memcpy(&ads114s0xb_priv->data[2],
+			&ads114s0xb_priv->mock_data,
+			sizeof ads114s0xb_priv->mock_data);
+		ads114s0xb_priv->mock_data++;
+	}
+
+	return get_unaligned_be16(&ads114s0xb_priv->data[2]);
 }
 
 static int ads114s0xb_read_reg(struct iio_dev *indio_dev, u8 reg, u8 *data)
 {
-	struct ads114s0xb_private *priv = iio_priv(indio_dev);
+	struct ads114s0xb_private *ads114s0xb_priv = iio_priv(indio_dev);
 	int ret = 0;
-	priv->data[0] = ADS114S0XB_CMD_RREG | reg;
-	priv->data[1] = 0x00; /* reading one register => 0x00 */
+	ads114s0xb_priv->data[0] = ADS114S0XB_CMD_RREG | reg;
+	ads114s0xb_priv->data[1] = 0x00; /* reading one register => 0x00 */
 
-	ret =
-	    spi_write_then_read(priv->spi, &priv->data[0], 2, 
-		&priv->data[2], 1);
-	if (ret < 0)
-		return ret;
+	
 
-	*data = priv->data[2];
+	if (ads114s0xb_priv->mock_flag != 0) {
+		*data = ads114s0xb_priv->mock_data;
+		ads114s0xb_priv->mock_data++;
+	}
+	else {
+		ret =
+			spi_write_then_read(ads114s0xb_priv->spi, 
+				&ads114s0xb_priv->data[0], 2, 
+				&ads114s0xb_priv->data[2], 1);
+		if (ret < 0) {
+			pr_info("ads114s0xb: Not able to read register");
+			return ret;
+		}
+		*data = ads114s0xb_priv->data[2];
+	}
+
 	return 1;
 }
 
@@ -253,7 +279,7 @@ static ssize_t ads114s0xb_attr_get(struct device *dev,
 
 	pr_info("ads114s0xb: Attribute %s to be read\n", attr->attr.name);
 	ret = ads114s0xb_read_reg(indio_dev, (u8)(iio_attr->address), buf);
-	pr_info("ads114s0xb: ads114s0xb_read_reg ret = %d\n", ret);
+	pr_info("ads114s0xb: ads114s0xb_read_reg ret = %d, val = %x\n", ret, *buf);
 
 	return ret;
 }
@@ -279,6 +305,11 @@ static ssize_t ads114s0xb_attr_set(struct device *dev,
 		pr_info("ads114s0xb: Channel %d does not exist for %s\n",
 			val, indio_dev->name);
 		return -EINVAL;
+	}
+
+	if (iio_attr->address == ADS114S0XB_REGADDR_MOCK) {
+		ads114s0xb_priv->mock_flag = val;
+		return 1;
 	}
 
 	mutex_lock(&ads114s0xb_priv->lock);
@@ -373,7 +404,7 @@ static int ads114s0xb_buffer_postdisable(struct iio_dev *indio_dev)
 
 #define IIO_RW_ATTRIBUTE(name, addr)                                           \
 	static IIO_DEVICE_ATTR(                                                \
-		name, 0644, ads114s0xb_attr_get, ads114s0xb_attr_set, addr);
+		name, 0664, ads114s0xb_attr_get, ads114s0xb_attr_set, addr);
 
 IIO_RW_ATTRIBUTE(ID, ADS114S0XB_REGADDR_ID);
 IIO_RW_ATTRIBUTE(STATUS, ADS114S0XB_REGADDR_STATUS);
@@ -391,7 +422,7 @@ IIO_RW_ATTRIBUTE(FSCAL0, ADS114S0XB_REGADDR_FSCAL0);
 IIO_RW_ATTRIBUTE(FSCAL1, ADS114S0XB_REGADDR_FSCAL1);
 IIO_RW_ATTRIBUTE(GPIODAT, ADS114S0XB_REGADDR_GPIODAT);
 IIO_RW_ATTRIBUTE(GPIOCON, ADS114S0XB_REGADDR_GPIOCON);
-IIO_RW_ATTRIBUTE(SENSOR_MOCK_MODE, 0xff);
+IIO_RW_ATTRIBUTE(SENSOR_MOCK_MODE, ADS114S0XB_REGADDR_MOCK);
 
 static struct attribute* ads114s0xb_attrs[] = {
 	&iio_dev_attr_ID.dev_attr.attr,
@@ -425,7 +456,6 @@ static const struct iio_info ads114s0xb_info = {
 };
 
 // Simulated sensor raw values
-static int sensor_raw_value_0 = 0xA510;
 static irqreturn_t ads114s0xb_trigger_handler(int irq, void *private) {
 	struct iio_poll_func *pf = private;
 	struct iio_dev *indio_dev = pf->indio_dev;
@@ -435,7 +465,12 @@ static irqreturn_t ads114s0xb_trigger_handler(int irq, void *private) {
 	
 	ads114s0xb_priv->buffer[0] = ads114s0xb_read(indio_dev);
 	// Mock
-	ads114s0xb_priv->buffer[0] = sensor_raw_value_0;
+	if (ads114s0xb_priv->mock_flag != 0) {
+		memcpy(&ads114s0xb_priv->buffer[0],
+			&ads114s0xb_priv->mock_data,
+			sizeof ads114s0xb_priv->mock_data);
+		ads114s0xb_priv->mock_data++;
+	}
 
 	iio_push_to_buffers_with_timestamp(indio_dev, ads114s0xb_priv->buffer, 
 		iio_get_time_ns(indio_dev));
@@ -466,6 +501,8 @@ static int ads114s0xb_probe(struct spi_device *spi)
 		return -ENOMEM;
 
 	ads114s0xb_priv = iio_priv(indio_dev);
+	ads114s0xb_priv->mock_flag = 0;
+	ads114s0xb_priv->mock_data = 0;
 	ads114s0xb_priv->spi = spi;
 	ads114s0xb_priv->chip_info = 
 		&ads114s0xb_chip_info_tbl[spi_id->driver_data];

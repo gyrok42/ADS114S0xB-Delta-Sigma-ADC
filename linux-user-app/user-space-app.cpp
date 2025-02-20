@@ -76,6 +76,12 @@ void writeRegisters(adcs::ADS114S0XB &adc) {
   }
 }
 
+void enableDriverMockSensor(adcs::ADS114S0XB &adc) {
+  using namespace adcs;
+  using ADS114S0XB::ADS114S0XBRegister::SENSOR_MOCK_MODE;
+  adc.writeRegister(SENSOR_MOCK_MODE, "1");
+}
+
 int main() {
   using namespace adcs;
   ADS114S0XB adc;
@@ -88,6 +94,9 @@ int main() {
       << strerror(initStatus.first)
       << std::endl;
   }
+
+  enableDriverMockSensor(adc);
+  
   auto channel = 3;
   // How to read ADC values / How to change ADC channels
   readAdcData(adc, channel, 20);

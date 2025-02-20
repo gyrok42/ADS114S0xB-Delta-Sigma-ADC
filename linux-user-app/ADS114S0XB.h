@@ -160,7 +160,7 @@ public:
             iio_device_attr_read(
                 _dev, registerMap.at(reg).c_str(),
                 buf,
-                sizeof(buf));
+                2);
         if ( ret < 0) {
             return std::nullopt;
         }
