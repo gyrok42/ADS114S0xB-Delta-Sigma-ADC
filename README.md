@@ -38,7 +38,7 @@ file and then reading its corresponding voltageX_raw to obtain the ADC values.
 
 Let's take a look at the system design figure below:
 
-![ads114s0xb](ads114s0xb_design.)
+![ads114s0xb](images/ads114s0xb_design.png)
 
 #### Device Driver Implementation
 
