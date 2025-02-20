@@ -1,98 +1,164 @@
+root@raspberrypi:/home/jairo/drivers/ADS114S0xB-Delta-Sigma-ADC/linux-user-app# make clean
+rm -f user-space-app
+root@raspberrypi:/home/jairo/drivers/ADS114S0xB-Delta-Sigma-ADC/linux-user-app# make
+g++ -std=c++20 -Wall -Wextra -O2 user-space-app.cpp -o user-space-app -liio
 root@raspberrypi:/home/jairo/drivers/ADS114S0xB-Delta-Sigma-ADC/linux-user-app# ./user-space-app 
-Switched to channel: 0
-ADC Data: 10 a5 
-ADC Data: 10 a5 
-ADC Data: 10 a5 
-ADC Data: 10 a5 
-ADC Data: 10 a5 
-ADC Data: 10 a5 
-ADC Data: 10 a5 
-ADC Data: 10 a5 
-ADC Data: 10 a5 
-ADC Data: 10 a5 
-ADC Data: 10 a5 
-ADC Data: 10 a5 
-ADC Data: 10 a5 
-ADC Data: 10 a5 
-ADC Data: 10 a5 
-ADC Data: 10 a5 
-ADC Data: 10 a5 
-ADC Data: 10 a5 
-ADC Data: 10 a5 
-ADC Data: 10 a5 
-Read register success: 
-Read VBIAS register sucess: 
-Read register success: 
-Read SYS register sucess: 
-Read register success: 
-Read STATUS register sucess: 
+Switched to channel: 3
+ADC data: 10 a5 
+ADC data: 10 a5 
+ADC data: 10 a5 
+ADC data: 10 a5 
+ADC data: 10 a5 
+ADC data: 10 a5 
+ADC data: 10 a5 
+ADC data: 10 a5 
+ADC data: 10 a5 
+ADC data: 10 a5 
+ADC data: 10 a5 
+ADC data: 10 a5 
+ADC data: 10 a5 
+ADC data: 10 a5 
+ADC data: 10 a5 
+ADC data: 10 a5 
+ADC data: 10 a5 
+ADC data: 10 a5 
+ADC data: 10 a5 
+ADC data: 10 a5 
 Read register success: 
 Read SENSOR_MOCK_MODE register sucess: 
-Read register success: 
+Read VBIAS register sucess: 
+Read SYS register sucess: 
+Read STATUS register sucess: 
 Read DATARATE register sucess: 
-Read register success: 
 Read FSCAL0 register sucess: 
-Read register success: 
 Read FSCAL1 register sucess: 
-Read register success: 
 Read GPIOCON register sucess: 
-Read register success: 
 Read GPIODAT register sucess: 
-Read register success: 
 Read ID register sucess: 
-Read register success: 
 Read IDACMAG register sucess: 
-Read register success: 
 Read IDACMUX register sucess: 
-Read register success: 
 Read INPMUX register sucess: 
-Read register success: 
 Read OFCAL0 register sucess: 
-Read register success: 
 Read OFCAL1 register sucess: 
-Read register success: 
 Read PGA register sucess: 
-Read register success: 
 Read REF register sucess: 
-Read register success: 
-root@raspberrypi:/home/jairo/drivers/ADS114S0xB-Delta-Sigma-ADC/linux-user-app# dmesg | tail -40
-[88392.649473] ads114s0xb_trigger_handler: Called
-[88392.649493] ads114s0xb_trigger_handler: Called
-[88392.649510] ads114s0xb_trigger_handler: Called
-[88392.649526] ads114s0xb_trigger_handler: Called
-[88392.649572] ads114s0xb: Attribute FSCAL0 to be read
-[88392.649630] ads114s0xb: ads114s0xb_read_reg ret = 1
-[88392.649668] ads114s0xb: Attribute VBIAS to be read
-[88392.649717] ads114s0xb: ads114s0xb_read_reg ret = 1
-[88392.649741] ads114s0xb: Attribute SYS to be read
-[88392.649784] ads114s0xb: ads114s0xb_read_reg ret = 1
-[88392.649805] ads114s0xb: Attribute STATUS to be read
-[88392.649848] ads114s0xb: ads114s0xb_read_reg ret = 1
-[88392.649870] ads114s0xb: Attribute SENSOR_MOCK_MODE to be read
-[88392.649914] ads114s0xb: ads114s0xb_read_reg ret = 1
-[88392.649935] ads114s0xb: Attribute DATARATE to be read
-[88392.649980] ads114s0xb: ads114s0xb_read_reg ret = 1
-[88392.650000] ads114s0xb: Attribute FSCAL0 to be read
-[88392.650045] ads114s0xb: ads114s0xb_read_reg ret = 1
-[88392.650066] ads114s0xb: Attribute FSCAL1 to be read
-[88392.650108] ads114s0xb: ads114s0xb_read_reg ret = 1
-[88392.650129] ads114s0xb: Attribute GPIOCON to be read
-[88392.650172] ads114s0xb: ads114s0xb_read_reg ret = 1
-[88392.650191] ads114s0xb: Attribute GPIODAT to be read
-[88392.650234] ads114s0xb: ads114s0xb_read_reg ret = 1
-[88392.650247] ads114s0xb: Attribute ID to be read
-[88392.650291] ads114s0xb: ads114s0xb_read_reg ret = 1
-[88392.650304] ads114s0xb: Attribute IDACMAG to be read
-[88392.650347] ads114s0xb: ads114s0xb_read_reg ret = 1
-[88392.650361] ads114s0xb: Attribute IDACMUX to be read
-[88392.650412] ads114s0xb: ads114s0xb_read_reg ret = 1
-[88392.650427] ads114s0xb: Attribute INPMUX to be read
-[88392.650471] ads114s0xb: ads114s0xb_read_reg ret = 1
-[88392.650484] ads114s0xb: Attribute OFCAL0 to be read
-[88392.650526] ads114s0xb: ads114s0xb_read_reg ret = 1
-[88392.650540] ads114s0xb: Attribute OFCAL1 to be read
-[88392.650584] ads114s0xb: ads114s0xb_read_reg ret = 1
-[88392.650598] ads114s0xb: Attribute PGA to be read
-[88392.650640] ads114s0xb: ads114s0xb_read_reg ret = 1
-[88392.650653] ads114s0xb: Attribute REF to be read
-[88392.650696] ads114s0xb: ads114s0xb_read_reg ret = 1
+Write SENSOR_MOCK_MODE register sucess: 1 bytes
+Write VBIAS register sucess: 1 bytes
+Write SYS register sucess: 1 bytes
+Write STATUS register sucess: 1 bytes
+Write DATARATE register sucess: 1 bytes
+Write FSCAL0 register sucess: 1 bytes
+Write FSCAL1 register sucess: 1 bytes
+Write GPIOCON register sucess: 1 bytes
+Write GPIODAT register sucess: 1 bytes
+Write ID register sucess: 1 bytes
+Write IDACMAG register sucess: 1 bytes
+Write IDACMUX register sucess: 1 bytes
+Write INPMUX register sucess: 1 bytes
+Write OFCAL0 register sucess: 1 bytes
+Write OFCAL1 register sucess: 1 bytes
+Write PGA register sucess: 1 bytes
+Write REF register sucess: 1 bytes
+
+
+root@raspberrypi:/home/jairo/drivers/ADS114S0xB-Delta-Sigma-ADC/linux-user-app# dmesg | tail -100
+[92541.740404] w1_master_driver w1_bus_master1: Family 0 for 00.26e000000000.8b is not registered.
+[92590.404953] w1_master_driver w1_bus_master1: Family 0 for 00.a6e000000000.07 is not registered.
+[92637.380720] w1_master_driver w1_bus_master1: Family 0 for 00.66e000000000.cd is not registered.
+[92673.984680] w1_master_driver w1_bus_master1: Family 0 for 00.e6e000000000.41 is not registered.
+[92721.951973] ads114s0xb_update_scan_mode
+[92721.952025] ads114s0xb spi0.0: Enabled ADC channel 0
+[92721.952147] ads114s0xb_trigger_handler: Called
+[92721.952182] ads114s0xb_trigger_handler: Called
+[92721.952206] ads114s0xb_trigger_handler: Called
+[92721.952223] ads114s0xb_trigger_handler: Called
+[92721.952242] ads114s0xb_trigger_handler: Called
+[92721.952264] ads114s0xb_trigger_handler: Called
+[92721.952282] ads114s0xb_trigger_handler: Called
+[92721.952299] ads114s0xb_trigger_handler: Called
+[92721.952317] ads114s0xb_trigger_handler: Called
+[92721.952335] ads114s0xb_trigger_handler: Called
+[92721.952356] ads114s0xb_trigger_handler: Called
+[92721.952372] ads114s0xb_trigger_handler: Called
+[92721.952389] ads114s0xb_trigger_handler: Called
+[92721.952406] ads114s0xb_trigger_handler: Called
+[92721.952426] ads114s0xb_trigger_handler: Called
+[92721.952447] ads114s0xb_trigger_handler: Called
+[92721.952470] ads114s0xb_trigger_handler: Called
+[92721.952488] ads114s0xb_trigger_handler: Called
+[92721.952506] ads114s0xb_trigger_handler: Called
+[92721.952525] ads114s0xb_trigger_handler: Called
+[92721.952571] ads114s0xb: Attribute FSCAL0 to be read
+[92721.952613] ads114s0xb: ads114s0xb_read_reg ret = 1
+[92721.952635] ads114s0xb: Attribute SENSOR_MOCK_MODE to be read
+[92721.952681] ads114s0xb: ads114s0xb_read_reg ret = 1
+[92721.952699] ads114s0xb: Attribute VBIAS to be read
+[92721.952746] ads114s0xb: ads114s0xb_read_reg ret = 1
+[92721.952761] ads114s0xb: Attribute SYS to be read
+[92721.952809] ads114s0xb: ads114s0xb_read_reg ret = 1
+[92721.952824] ads114s0xb: Attribute STATUS to be read
+[92721.952864] ads114s0xb: ads114s0xb_read_reg ret = 1
+[92721.952880] ads114s0xb: Attribute DATARATE to be read
+[92721.952923] ads114s0xb: ads114s0xb_read_reg ret = 1
+[92721.952939] ads114s0xb: Attribute FSCAL0 to be read
+[92721.952986] ads114s0xb: ads114s0xb_read_reg ret = 1
+[92721.953001] ads114s0xb: Attribute FSCAL1 to be read
+[92721.953107] ads114s0xb: ads114s0xb_read_reg ret = 1
+[92721.953135] ads114s0xb: Attribute GPIOCON to be read
+[92721.953185] ads114s0xb: ads114s0xb_read_reg ret = 1
+[92721.953205] ads114s0xb: Attribute GPIODAT to be read
+[92721.953264] ads114s0xb: ads114s0xb_read_reg ret = 1
+[92721.953286] ads114s0xb: Attribute ID to be read
+[92721.953326] ads114s0xb: ads114s0xb_read_reg ret = 1
+[92721.953346] ads114s0xb: Attribute IDACMAG to be read
+[92721.953416] ads114s0xb: ads114s0xb_read_reg ret = 1
+[92721.953443] ads114s0xb: Attribute IDACMUX to be read
+[92721.953500] ads114s0xb: ads114s0xb_read_reg ret = 1
+[92721.953528] ads114s0xb: Attribute INPMUX to be read
+[92721.953579] ads114s0xb: ads114s0xb_read_reg ret = 1
+[92721.953627] ads114s0xb: Attribute OFCAL0 to be read
+[92721.953680] ads114s0xb: ads114s0xb_read_reg ret = 1
+[92721.953702] ads114s0xb: Attribute OFCAL1 to be read
+[92721.953749] ads114s0xb: ads114s0xb_read_reg ret = 1
+[92721.953774] ads114s0xb: Attribute PGA to be read
+[92721.953822] ads114s0xb: ads114s0xb_read_reg ret = 1
+[92721.953850] ads114s0xb: Attribute REF to be read
+[92721.953903] ads114s0xb: ads114s0xb_read_reg ret = 1
+[92721.953931] ads114s0xb: Setting attribute DATARATE
+[92721.953976] ads114s0xb: Attribute DATARATE set to 5
+[92721.953994] ads114s0xb: Setting attribute DATARATE
+[92721.954026] ads114s0xb: Attribute DATARATE set to 5
+[92721.954043] ads114s0xb: Setting attribute DATARATE
+[92721.954074] ads114s0xb: Attribute DATARATE set to 5
+[92721.954087] ads114s0xb: Setting attribute DATARATE
+[92721.954135] ads114s0xb: Attribute DATARATE set to 5
+[92721.954161] ads114s0xb: Setting attribute DATARATE
+[92721.954195] ads114s0xb: Attribute DATARATE set to 5
+[92721.954224] ads114s0xb: Setting attribute DATARATE
+[92721.954258] ads114s0xb: Attribute DATARATE set to 5
+[92721.954286] ads114s0xb: Setting attribute DATARATE
+[92721.954320] ads114s0xb: Attribute DATARATE set to 5
+[92721.954344] ads114s0xb: Setting attribute DATARATE
+[92721.954376] ads114s0xb: Attribute DATARATE set to 5
+[92721.954389] ads114s0xb: Setting attribute DATARATE
+[92721.954422] ads114s0xb: Attribute DATARATE set to 5
+[92721.954435] ads114s0xb: Setting attribute DATARATE
+[92721.954488] ads114s0xb: Attribute DATARATE set to 5
+[92721.954515] ads114s0xb: Setting attribute DATARATE
+[92721.954547] ads114s0xb: Attribute DATARATE set to 5
+[92721.954574] ads114s0xb: Setting attribute DATARATE
+[92721.954609] ads114s0xb: Attribute DATARATE set to 5
+[92721.954636] ads114s0xb: Setting attribute DATARATE
+[92721.954672] ads114s0xb: Attribute DATARATE set to 5
+[92721.954698] ads114s0xb: Setting attribute DATARATE
+[92721.954736] ads114s0xb: Attribute DATARATE set to 5
+[92721.954750] ads114s0xb: Setting attribute DATARATE
+[92721.954786] ads114s0xb: Attribute DATARATE set to 5
+[92721.954833] ads114s0xb: Setting attribute DATARATE
+[92721.954866] ads114s0xb: Attribute DATARATE set to 5
+[92721.954886] ads114s0xb: Setting attribute DATARATE
+[92721.954919] ads114s0xb: Attribute DATARATE set to 5
+[92721.954944] ads114s0xb: Setting attribute DATARATE
+[92721.954978] ads114s0xb: Attribute DATARATE set to 5
+[92733.664747] w1_master_driver w1_bus_master1: Family 0 for 00.16e000000000.35 is not registered.
+[92771.216857] w1_master_driver w1_bus_master1: Family 0 for 00.96e000000000.b9 is not registered.

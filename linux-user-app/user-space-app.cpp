@@ -1,9 +1,12 @@
+#include <cstring>
+
 #include "ADS114S0XB.h"
 
 void readAdcData (adcs::ADS114S0XB &adc, int channel, int count) {
   using namespace adcs;
 
   // Set ADC channel to 0 and trigger a conversion
+  // How to change ADC channels
   adc.setChannel(channel);
   adc.enableBuffer();
 
@@ -76,10 +79,21 @@ void writeRegisters(adcs::ADS114S0XB &adc) {
 int main() {
   using namespace adcs;
   ADS114S0XB adc;
-  adc.initialize();
+  auto initStatus = adc.initialize();
+
+  if (initStatus.first != 0) {
+    std::cerr
+      << "ADS114S0XB initialize error ("
+      << initStatus.second << "): "
+      << strerror(initStatus.first)
+      << std::endl;
+  }
   auto channel = 3;
+  // How to read ADC values / How to change ADC channels
   readAdcData(adc, channel, 20);
+  // How to read register values
   readRegisters(adc);
+  // How to write register values
   writeRegisters(adc);
  
   return EXIT_SUCCESS;
